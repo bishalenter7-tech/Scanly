@@ -1,0 +1,8 @@
+{
+  "name": "Scanly",
+  "description": "Scan any product to decode ingredients, verify marketing claims, and get an instant AI-powered safety score.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": []
+}
