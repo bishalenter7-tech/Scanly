@@ -1,13 +1,19 @@
 import { GoogleGenAI, Type, ThinkingLevel } from '@google/genai';
 import { AnalysisResult } from '../types/analysis';
 
-// Add type definition for Gemini API key environment variable
+// Type augmentation for Vite environment variables
 declare global {
-  var __VITE_GEMINI_API_KEY: string;
+  interface ImportMeta {
+    readonly env: ImportMetaEnv;
+  }
+
+  interface ImportMetaEnv {
+    readonly VITE_GEMINI_API_KEY: string;
+  }
 }
 
 // 1. Retrieve the API key securely from Vite's environment
-const apiKey = __VITE_GEMINI_API_KEY;
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
 if (!apiKey) {
   console.error("🤖 CRITICAL: VITE_GEMINI_API_KEY is missing from environment variables.");
