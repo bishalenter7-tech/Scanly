@@ -15,6 +15,8 @@ declare global {
 // 1. Retrieve the API key securely from Vite's environment
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
+console.log("🔍 ENV Check - GEMINI_KEY exists:", !!apiKey);
+
 if (!apiKey) {
   console.error("🤖 CRITICAL: VITE_GEMINI_API_KEY is missing from environment variables.");
   throw new Error("Missing Gemini API key");
