@@ -1,5 +1,5 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, Auth } from 'firebase/auth';
+import { getAuth, initializeAuth, GoogleAuthProvider, Auth, browserPopupRedirectResolver } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 
 // Type augmentation for Vite environment variables (correct TypeScript approach)
@@ -39,6 +39,8 @@ export const app: FirebaseApp = getApps().length === 0
   : getApps()[0];
 
 // 4. Export services
-export const auth: Auth = getAuth(app);
+export const auth: Auth = initializeAuth(app, {
+  popupRedirectResolver: browserPopupRedirectResolver
+});
 export const db: Firestore = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();

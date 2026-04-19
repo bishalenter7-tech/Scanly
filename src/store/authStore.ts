@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { auth, googleProvider } from '../lib/firebase';
-import { signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, User, updateProfile } from 'firebase/auth';
+import { signInWithPopup, signOut, onAuthStateChanged, User, updateProfile } from 'firebase/auth';
 import { useScanStore } from './scanStore';
 
 interface AuthState {
@@ -13,8 +13,6 @@ interface AuthState {
   initAuthListener: () => () => void;
 }
 
-let redirectResultPromise: Promise<any> | null = null;
-
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isLoading: true,
@@ -23,15 +21,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       set({ error: null });
       
-      // On strictly mobile/standalone browser environments without popup capability, use redirect.
-      // But we default to popup to preserve iframe functionality on AI Studio.
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      const isIframe = window !== window.parent;
+      // Use popup authentication for all devices (more reliable than redirect on mobile)
+      const result = await signInWithPopup(auth, googleProvider);
       
-      if (isMobile && !isIframe) {
-        await signInWithRedirect(auth, googleProvider);
-      } else {
-        await signInWithPopup(auth, googleProvider);
+      if (result.user) {
         setTimeout(() => useScanStore.getState().syncFromFirebase(), 500);
       }
     } catch (error: any) {
@@ -73,26 +66,14 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
   initAuthListener: () => {
-    // 1. Immediately check for a redirect result (if the user comes back from a mobile redirect)
-    if (!redirectResultPromise) {
-      redirectResultPromise = getRedirectResult(auth);
-      redirectResultPromise.then((result) => {
-        if (result?.user) {
-          useScanStore.getState().syncFromFirebase();
-        }
-      }).catch((error) => {
-        console.error("Redirect login error:", error);
-        if (error.message && error.message.includes('operation-not-allowed')) {
-          set({ error: "Google Sign-In is disabled. Enable it in your Firebase Console." });
-        }
-      });
-    }
-
-    // 2. Set up the standard auth state listener
+    // Set up auth state listener to handle login state changes
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       set({ user, isLoading: false });
       if (user) {
+        console.log("User logged in:", user.uid);
         useScanStore.getState().syncFromFirebase();
+      } else {
+        console.log("User logged out");
       }
     });
     

@@ -57,7 +57,10 @@ export default function Scan() {
   };
 
   const handleAnalyze = async () => {
-    if (!localImage || !file) return;
+    if (!localImage || !file) {
+      setError("Please select an image first");
+      return;
+    }
     
     setIsProcessing(true);
     setAnalyzing(true);

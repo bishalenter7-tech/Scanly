@@ -17,6 +17,7 @@ const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
 if (!apiKey) {
   console.error("🤖 CRITICAL: VITE_GEMINI_API_KEY is missing from environment variables.");
+  throw new Error("Missing Gemini API key");
 }
 
 // 2. Initialize the AI Client
@@ -28,7 +29,7 @@ export async function analyzeProduct(
   userLanguage: string = 'English'
 ): Promise<AnalysisResult> {
   if (!apiKey) {
-      throw new Error('Analysis Service Unavailable: API Key is missing.');
+      throw new Error("Missing Gemini API key");
   }
 
   const systemInstruction = `You are TruthScan AI, an expert, multi-disciplinary product safety and quality analyst. 
@@ -202,7 +203,7 @@ RULES:
     }
     throw new Error('No valid response received.');
   } catch (error) {
-    console.error('Gemini API Error:', error);
-    throw error;
+    console.error("Gemini Error:", error);
+    throw new Error("AI failed to analyze image");
   }
 }
