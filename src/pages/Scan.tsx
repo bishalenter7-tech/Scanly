@@ -5,7 +5,6 @@ import imageCompression from 'browser-image-compression';
 import { Camera, Image as ImageIcon, X, UploadCloud, Loader2, Search } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { useScanStore } from '../store/scanStore';
-import { useAppStore } from '../store/appStore';
 import { analyzeProduct } from '../lib/gemini';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -15,7 +14,7 @@ export default function Scan() {
   const setAnalyzing = useScanStore((state) => state.setAnalyzing);
   const setResult = useScanStore((state) => state.setResult);
   const setError = useScanStore((state) => state.setError);
-  const language = useAppStore((state) => state.language);
+  const language = useScanStore((state) => state.language);
   
   const [localImage, setLocalImage] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -46,9 +45,10 @@ export default function Scan() {
       setFile(compressedFile);
       
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setLocalImage(reader.result as string);
-        setImage(reader.result as string);
+      reader.onload = () => {
+        const result = reader.result as string;
+        setLocalImage(result);
+        setImage(result);
       };
       reader.readAsDataURL(compressedFile);
     } catch (e) {
@@ -110,6 +110,10 @@ export default function Scan() {
           >
             <div 
               {...getRootProps()} 
+              onClick={(e) => {
+                const input = e.currentTarget.querySelector('input[type="file"]');
+                if (input) (input as HTMLInputElement).value = '';
+              }}
               className={`border-2 border-dashed rounded-3xl p-12 flex flex-col items-center justify-center cursor-pointer transition-colors shadow-sm ${isDragActive ? 'border-[#16a34a] bg-[#16a34a]/5 scale-[1.02]' : 'border-[#16a34a]/20 hover:border-[#16a34a]/50 bg-white hover:bg-[#16a34a]/[0.02]'}`}
               style={{ minHeight: '300px' }}
             >
@@ -133,6 +137,7 @@ export default function Scan() {
                     type="file" 
                     accept="image/*" 
                     className="hidden" 
+                    onClick={(e) => (e.currentTarget.value = '')}
                     onChange={(e) => {
                       if (e.target.files && e.target.files.length > 0) {
                         handleFileSelection(e.target.files[0]);
@@ -156,6 +161,7 @@ export default function Scan() {
                     accept="image/*" 
                     capture="environment"
                     className="hidden" 
+                    onClick={(e) => (e.currentTarget.value = '')}
                     onChange={(e) => {
                       if (e.target.files && e.target.files.length > 0) {
                         handleFileSelection(e.target.files[0]);
@@ -253,12 +259,12 @@ export default function Scan() {
               </div>
               
               <div className="space-y-4 bg-[#f0fdf4] p-5 rounded-2xl border border-[#16a34a]/5 h-56 overflow-y-auto custom-scrollbar">
-                <LoadingStep active={loadingStep >= 0} text="🔍 Extracting text & symbols..." />
-                <LoadingStep active={loadingStep >= 1} text="🤖 AI Model processing logic..." />
-                <LoadingStep active={loadingStep >= 2} text="🌐 Cross-referencing Google..." />
-                <LoadingStep active={loadingStep >= 3} text="🧪 Analyzing toxicology..." />
-                <LoadingStep active={loadingStep >= 4} text="⚖️ Checking marketing claims..." />
-                <LoadingStep active={loadingStep >= 5} text="📊 Building detailed report..." />
+                <LoadingStep active={loadingStep >= 0} text="📸 Analyzing product image..." />
+                <LoadingStep active={loadingStep >= 1} text="🔍 Extracting label text & ingredients..." />
+                <LoadingStep active={loadingStep >= 2} text="🏷️ Detecting product category..." />
+                <LoadingStep active={loadingStep >= 3} text="🗄️ Fetching safety database..." />
+                <LoadingStep active={loadingStep >= 4} text="⚗️ Analyzing ingredient safety..." />
+                <LoadingStep active={loadingStep >= 5} text="📊 Generating detailed report..." />
               </div>
 
               <p className="text-center text-xs font-semibold text-[#16a34a] animate-pulse">This usually takes 20–30 seconds</p>

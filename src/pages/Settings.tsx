@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAppStore } from '../store/appStore';
+import { useScanStore } from '../store/scanStore';
 import { useAuthStore } from '../store/authStore';
 import { Button } from '../components/ui/button';
 import { ShieldCheck, Check } from 'lucide-react';
@@ -14,7 +14,7 @@ const avatars = [
 ];
 
 export default function Settings() {
-  const { language, setLanguage } = useAppStore();
+  const { language, setLanguage } = useScanStore();
   const { user, loginWithGoogle, logout, updateProfileData } = useAuthStore();
   
   const [displayName, setDisplayName] = useState(user?.displayName || '');

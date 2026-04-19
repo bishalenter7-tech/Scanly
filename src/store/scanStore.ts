@@ -12,11 +12,13 @@ export interface ScanHistoryItem {
 }
 
 interface ScanStore {
+  language: string;
   imagePreview: string | null;
   isAnalyzing: boolean;
   result: AnalysisResult | null;
   error: string | null;
   history: ScanHistoryItem[];
+  setLanguage: (lang: string) => void;
   setImage: (image: string | null) => void;
   setAnalyzing: (loading: boolean) => void;
   setResult: (result: AnalysisResult | null) => void;
@@ -31,11 +33,13 @@ interface ScanStore {
 export const useScanStore = create<ScanStore>()(
   persist(
     (set, get) => ({
+      language: 'English',
       imagePreview: null,
       isAnalyzing: false,
       result: null,
       error: null,
       history: [],
+      setLanguage: (lang) => set({ language: lang }),
       setImage: (image) => set({ imagePreview: image }),
       setAnalyzing: (loading) => set({ isAnalyzing: loading }),
       setResult: (result) => set({ result }),

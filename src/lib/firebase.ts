@@ -29,11 +29,8 @@ const firebaseConfig = {
 };
 
 // 2. Validate configuration to prevent silent crashes in production
-console.log("🔥 ENV Check - FIREBASE_API_KEY exists:", !!firebaseConfig.apiKey);
-console.log("🔥 ENV Check - FIREBASE_PROJECT_ID exists:", !!firebaseConfig.projectId);
-
 if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-  console.error("🔥 CRITICAL: Firebase environment variables are missing. Check your .env file or Vercel Environment settings.");
+  console.error("CRITICAL: Firebase environment variables are missing. Check your .env file or Vercel Environment settings.");
 }
 
 // 3. Initialize Firebase (Singleton pattern to prevent re-initialization errors in React StrictMode)
