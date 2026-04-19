@@ -63,8 +63,8 @@ RULES:
         ]
       },
       config: {
-        tools: [{ googleSearch: {} }],
-        thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH },
+        // tools: [{ googleSearch: {} }], // Commented out to reduce latency
+        // thinkingConfig: { thinkingLevel: ThinkingLevel.LOW }, // Reduced thinking level
         systemInstruction,
         responseMimeType: "application/json",
         responseSchema: {
