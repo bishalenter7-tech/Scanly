@@ -80,9 +80,10 @@ export default function Scan() {
       
       clearInterval(stepsInterval);
       navigate('/results');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError("Analysis failed. Please make sure the image is clear and try again.");
+      // We now show the EXACT error message the API returned so we can diagnose it!
+      setError(`Error: ${err.message}`);
       setIsProcessing(false);
       setAnalyzing(false);
       clearInterval(stepsInterval);
