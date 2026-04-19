@@ -35,7 +35,7 @@ All text must be in ${userLanguage} language.`;
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-pro-preview", // Note: Ensure your API key has access to this model
+      model: "gemini-2.5-flash",
       contents: {
         parts: [
           { inlineData: { mimeType: mediaType, data: imageBase64 } },
