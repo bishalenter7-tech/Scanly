@@ -3,6 +3,18 @@ import { auth, googleProvider } from '../lib/firebase';
 import { signInWithPopup, signOut, onAuthStateChanged, User, updateProfile } from 'firebase/auth';
 import { useScanStore } from './scanStore';
 
+const isInAppBrowser = () => {
+  const ua = navigator.userAgent || '';
+  return /FBAN|FBAV|Instagram|iPhone.*Twitter|line/.test(ua);
+};
+
+const getInAppBrowserWarning = () => {
+  if (isInAppBrowser()) {
+    return "Please open this app in Chrome or your default browser for login to work";
+  }
+  return null;
+};
+
 interface AuthState {
   user: User | null;
   isLoading: boolean;
@@ -20,25 +32,35 @@ export const useAuthStore = create<AuthState>((set) => ({
   loginWithGoogle: async () => {
     try {
       set({ error: null });
-      
-      // Use popup authentication for all devices (more reliable than redirect on mobile)
+
+      const browserWarning = getInAppBrowserWarning();
+      if (browserWarning) {
+        set({ error: browserWarning });
+        return;
+      }
+
       const result = await signInWithPopup(auth, googleProvider);
       
       if (result.user) {
         setTimeout(() => useScanStore.getState().syncFromFirebase(), 500);
       }
     } catch (error: any) {
-      if (error.message && error.message.includes('auth/cancelled-popup-request')) {
-         // Silently ignore when user cancels the popup
-         return;
-      } else if (error.message && error.message.includes('auth/unauthorized-domain')) {
-         set({ error: "Please open the app in a new window, or add this URL to your Authorized Domains in the Firebase console." });
-      } else if (error.message && error.message.includes('API key not valid')) {
-         set({ error: "Firebase is not configured perfectly. Please check your credentials!" });
-      } else if (error.message && error.message.includes('operation-not-allowed')) {
-         set({ error: "Google Sign-In is disabled. You MUST enable it in your Firebase Console > Authentication > Sign-in Method." });
+      const errorCode = error.code || '';
+      const errorMessage = error.message || '';
+
+      if (errorCode === 'auth/popup-blocked' || errorMessage.includes('auth/popup-blocked')) {
+        set({ error: "Popup blocked. Please enable popups in your browser." });
+        return;
+      } else if (errorMessage.includes('auth/cancelled-popup-request')) {
+        return;
+      } else if (errorMessage.includes('auth/unauthorized-domain')) {
+        set({ error: "Please open the app in a new window, or add this URL to your Authorized Domains in the Firebase console." });
+      } else if (errorMessage.includes('API key not valid')) {
+        set({ error: "Firebase is not configured perfectly. Please check your credentials!" });
+      } else if (errorMessage.includes('operation-not-allowed')) {
+        set({ error: "Google Sign-In is disabled. You MUST enable it in your Firebase Console > Authentication > Sign-in Method." });
       } else {
-         set({ error: `Login Failed: ${error.message}` });
+        set({ error: `Login Failed: ${errorMessage}` });
       }
       console.error("Login Error:", error);
     }
