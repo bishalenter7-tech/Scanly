@@ -1,20 +1,7 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { AnalysisResult } from '../types/analysis';
 
-declare global {
-  interface ImportMeta {
-    readonly env: ImportMetaEnv;
-  }
-  interface ImportMetaEnv {
-    readonly VITE_GEMINI_API_KEY: string;
-  }
-}
-
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
-
-if (!apiKey) {
-    console.error('CRITICAL: GEMINI_API_KEY is not set in environment variables.');
-}
 
 const ai = new GoogleGenAI({ apiKey: apiKey || '' });
 
@@ -23,139 +10,53 @@ export async function analyzeProduct(
   mediaType: string,
   userLanguage: string = 'English'
 ): Promise<AnalysisResult> {
-  if (!apiKey) {
-      throw new Error('API Key is missing. Check Vercel Environment Variables.');
-  }
+  if (!apiKey) throw new Error('API Key is missing.');
 
-  const systemInstruction = `You are TruthScan AI, an expert product safety analyst. 
-Analyze the packaged product image and provide a JSON response.
-All text must be in ${userLanguage} language.`;
-
-  const userPrompt = `Analyze this product image completely. Identify its category and provide detailed safety, quality, and ingredient analysis. Provide a total assessment.`;
+  // Branding fixed to "Scanly"
+  // AI is now strictly forbidden from suggesting high-sugar/unhealthy alternatives
+  const systemInstruction = `You are Scanly AI, a highly accurate, critical product safety and health analyst.
+  
+  RULES FOR ACCURACY:
+  1. Branding: Always refer to yourself as "Scanly".
+  2. Language: All output must be in ${userLanguage}.
+  3. Alternatives Safety: NEVER suggest high-sugar health drinks (e.g., Horlicks, Bournvita, Boost) or age-inappropriate shakes (Ensure) as healthy alternatives. Suggest REAL whole-food alternatives (e.g., oats, nuts, protein-rich whole foods, home-made snacks). Evaluate alternatives for actual nutritional quality (low sugar, high protein).
+  4. Sources: MUST provide 3-4 actual, verifiable, HTTPS URLs (e.g., FDA/EFSA/clinical study) for the product or ingredient information. Do not fake URLs.
+  5. Translation: Translate packaging text accurately.
+  6. Score Dynamically: Score based on the ingredient list detected. If ingredients are missing, state that clearly and penalize the transparency score.`;
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-flash", // Fast and Free-tier friendly
       contents: {
         parts: [
           { inlineData: { mimeType: mediaType, data: imageBase64 } },
-          { text: userPrompt }
+          { text: "Analyze the product in the image. Return structured JSON." }
         ]
       },
       config: {
-        // 🔴 CRITICAL FIX 1: Removed Google Search & Thinking features which break free-tier keys
         systemInstruction,
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            product: {
-              type: Type.OBJECT,
-              properties: {
-                name: { type: Type.STRING },
-                brand: { type: Type.STRING },
-                category: { type: Type.STRING },
-                country_of_origin: { type: Type.STRING },
-                label_language: { type: Type.STRING }
-              },
-              required: ["name", "brand", "category", "country_of_origin", "label_language"]
-            },
+            product: { type: Type.OBJECT, properties: { name: { type: Type.STRING }, brand: { type: Type.STRING }, category: { type: Type.STRING }, country_of_origin: { type: Type.STRING }}, required: ["name", "brand", "category", "country_of_origin"]},
             safety_score: { type: Type.INTEGER },
-            ai_confidence: { type: Type.INTEGER },
             recommendation: { type: Type.STRING },
             translation: { type: Type.STRING },
-            dietary_advice: {
-              type: Type.OBJECT,
-              properties: {
-                what_to_eat: { type: Type.STRING },
-                what_not_to_eat: { type: Type.STRING },
-                moderation_info: { type: Type.STRING }
-              },
-              required: ["what_to_eat", "what_not_to_eat", "moderation_info"]
-            },
-            online_alternatives: { type: Type.ARRAY, items: { type: Type.STRING } },
-            category_scores: {
-              type: Type.OBJECT,
-              properties: {
-                health_safety: { type: Type.INTEGER },
-                ingredient_transparency: { type: Type.INTEGER },
-                claim_honesty: { type: Type.INTEGER },
-                nutritional_value: { type: Type.INTEGER }
-              },
-              required: ["health_safety", "ingredient_transparency", "claim_honesty", "nutritional_value"]
-            },
-            ingredients: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  original_name: { type: Type.STRING },
-                  simplified_name: { type: Type.STRING },
-                  function: { type: Type.STRING },
-                  health_impact: { type: Type.STRING },
-                  explanation: { type: Type.STRING },
-                  detail: { type: Type.STRING },
-                  is_flagged: { type: Type.BOOLEAN },
-                  flag_reason: { type: Type.STRING }
-                },
-                required: ["original_name", "simplified_name", "function", "health_impact", "explanation", "detail", "is_flagged"]
-              }
-            },
-            claims: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  claim_text: { type: Type.STRING },
-                  verdict: { type: Type.STRING },
-                  explanation: { type: Type.STRING }
-                },
-                required: ["claim_text", "verdict", "explanation"]
-              }
-            },
-            warnings: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  type: { type: Type.STRING },
-                  severity: { type: Type.STRING },
-                  message: { type: Type.STRING }
-                },
-                required: ["type", "severity", "message"]
-              }
-            },
-            safety_breakdown: {
-              type: Type.OBJECT,
-              properties: {
-                sugar_level: { type: Type.INTEGER },
-                sodium_level: { type: Type.INTEGER },
-                preservatives_level: { type: Type.INTEGER },
-                artificial_additives_level: { type: Type.INTEGER },
-                allergen_risk: { type: Type.INTEGER }
-              },
-              required: ["sugar_level", "sodium_level", "preservatives_level", "artificial_additives_level", "allergen_risk"]
-            },
-            summary: { type: Type.ARRAY, items: { type: Type.STRING } },
-            health_note: { type: Type.STRING },
-            alternatives: { type: Type.ARRAY, items: { type: Type.STRING } },
-            sources: { type: Type.ARRAY, items: { type: Type.STRING } }
+            ingredients: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { name: { type: Type.STRING }, health_impact: { type: Type.STRING }, explanation: { type: Type.STRING } }, required: ["name", "health_impact", "explanation"] } },
+            alternatives: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { name: { type: Type.STRING }, quality: { type: Type.STRING }, reason: { type: Type.STRING } }, required: ["name", "quality", "reason"] } },
+            sources: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { name: { type: Type.STRING }, url: { type: Type.STRING } }, required: ["name", "url"] } },
+            summary: { type: Type.STRING } // Summary of the "Scanly" Analysis
           },
-          required: ["product", "safety_score", "ai_confidence", "recommendation", "translation", "dietary_advice", "online_alternatives", "category_scores", "ingredients", "claims", "warnings", "safety_breakdown", "summary", "health_note", "alternatives", "sources"]
+          required: ["product", "safety_score", "recommendation", "ingredients", "alternatives", "sources", "summary"]
         }
       }
     });
 
-    let text = response.text;
-    if (text) {
-      // 🔴 CRITICAL FIX 2: Strip completely invisible formatting that breaks JSON.parse
-      text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      return JSON.parse(text) as AnalysisResult;
-    }
-    throw new Error('Received empty response from the AI.');
-  } catch (error: any) {
-    console.error('Gemini API Error details:', error);
-    // 🔴 CRITICAL FIX 3: Actually capture the real error message for the UI!
-    throw new Error(error.message || 'Unknown Gemini API connection error.');
+    const text = response.text?.replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(text || '{}');
+  } catch (error) {
+    console.error('Gemini API Error:', error);
+    throw error;
   }
 }
