@@ -31,11 +31,17 @@ export default function Results() {
   };
 
   const radarData = [
-    { subject: 'Health & Safety', x: result.category_scores?.health_safety || 0 },
-    { subject: 'Ingredient Transparency', x: result.category_scores?.ingredient_transparency || 0 },
-    { subject: 'Claim Honesty', x: result.category_scores?.claim_honesty || 0 },
-    { subject: 'Nutritional Value', x: result.category_scores?.nutritional_value || 0 }
+    { subject: 'Health & Safety', x: Number(result.category_scores?.health_safety) || 0 },
+    { subject: 'Ingredient Transparency', x: Number(result.category_scores?.ingredient_transparency) || 0 },
+    { subject: 'Claim Honesty', x: Number(result.category_scores?.claim_honesty) || 0 },
+    { subject: 'Nutritional Value', x: Number(result.category_scores?.nutritional_value) || 0 }
   ];
+  
+  // Validate radar data values are within 0-100 range
+  const validatedRadarData = radarData.map(item => ({
+    ...item,
+    x: Math.max(0, Math.min(100, item.x))
+  }));
 
   return (
     <div className="flex-1 max-w-5xl mx-auto w-full px-4 py-8 pb-32">
@@ -153,22 +159,22 @@ export default function Results() {
           <Card className="shadow-sm border-gray-200">
              <CardContent className="p-6">
                 <h3 className="font-bold text-[#064e3b] mb-2 text-center">Category Scores</h3>
-                <div className="h-64 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-                      <PolarGrid stroke="#e5e7eb" />
-                      <PolarAngleAxis dataKey="subject" tick={{ fill: '#4b5563', fontSize: 10, fontWeight: 600 }} />
-                      <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#9ca3af', fontSize: 10 }} />
-                      <Radar
-                        name="Score"
-                        dataKey="x"
-                        stroke="#16a34a"
-                        fill="#16a34a"
-                        fillOpacity={0.4}
-                      />
-                    </RadarChart>
-                  </ResponsiveContainer>
-                </div>
+                 <div className="h-64 w-full">
+                   <ResponsiveContainer width="100%" height="100%">
+                     <RadarChart cx="50%" cy="50%" outerRadius="70%" data={validatedRadarData}>
+                       <PolarGrid stroke="#e5e7eb" />
+                       <PolarAngleAxis dataKey="subject" tick={{ fill: '#4b5563', fontSize: 10, fontWeight: 600 }} />
+                       <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#9ca3af', fontSize: 10 }} />
+                       <Radar
+                         name="Score"
+                         dataKey="x"
+                         stroke="#16a34a"
+                         fill="#16a34a"
+                         fillOpacity={0.4}
+                       />
+                     </RadarChart>
+                   </ResponsiveContainer>
+                 </div>
              </CardContent>
           </Card>
         </motion.div>
@@ -188,99 +194,99 @@ export default function Results() {
               result.product_category === 'HOUSEHOLD_CHEMICAL' ? 'border-purple-200' :
               'border-gray-200'
             }`}>
-               <div className={`p-6 border-b ${
-                 result.product_category === 'FOOD_DRINK' ? 'bg-gradient-to-r from-green-50 to-transparent border-green-100' :
-                 result.product_category === 'COSMETIC_SKINCARE' ? 'bg-gradient-to-r from-pink-50 to-transparent border-pink-100' :
-                 result.product_category === 'HOUSEHOLD_CHEMICAL' ? 'bg-gradient-to-r from-purple-50 to-transparent border-purple-100' :
-                 'bg-gradient-to-r from-gray-50 to-transparent border-gray-100'
-               }`}>
-                 <h3 className={`font-bold flex items-center gap-2 ${
-                   result.product_category === 'FOOD_DRINK' ? 'text-green-800' :
-                   result.product_category === 'COSMETIC_SKINCARE' ? 'text-pink-800' :
-                   result.product_category === 'HOUSEHOLD_CHEMICAL' ? 'text-purple-800' :
-                   'text-gray-800'
-                 }`}>
-                   <ShieldCheck className="h-5 w-5" /> 
-                   {result.product_category === 'FOOD_DRINK' ? 'Food & Nutrition Guide' :
-                    result.product_category === 'COSMETIC_SKINCARE' ? 'Skin Safety & Usage Guide' :
-                    result.product_category === 'HOUSEHOLD_CHEMICAL' ? 'Safe Handling Guide' :
-                    'Product Safety Guide'}
-                 </h3>
-               </div>
-               <CardContent className="p-0">
-                 <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x">
-                   {/* FOOD_DRINK fields */}
-                   {result.product_category === 'FOOD_DRINK' && (
-                     <>
-                       <div className="p-5">
-                         <h4 className="font-bold text-green-700 mb-2 flex items-center gap-1">✅ Good Points</h4>
-                         <p className="text-sm text-gray-700">{result.usage_and_safety_guidelines.what_to_eat || 'Not specified'}</p>
-                       </div>
-                       <div className="p-5">
-                         <h4 className="font-bold text-red-700 mb-2 flex items-center gap-1">⚠️ Concerns</h4>
-                         <p className="text-sm text-gray-700">{result.usage_and_safety_guidelines.what_not_to_eat || 'Not specified'}</p>
-                       </div>
-                     </>
-                   )}
-                   
-                   {/* COSMETIC_SKINCARE fields */}
-                   {result.product_category === 'COSMETIC_SKINCARE' && (
-                     <>
-                       <div className="p-5">
-                         <h4 className="font-bold text-green-700 mb-2 flex items-center gap-1">✅ Skin Safe</h4>
-                         <p className="text-sm text-gray-700">{result.usage_and_safety_guidelines.skin_safety || result.usage_and_safety_guidelines.proper_usage || 'Not specified'}</p>
-                       </div>
-                       <div className="p-5">
-                         <h4 className="font-bold text-amber-700 mb-2 flex items-center gap-1">⚠️ Allergy Alert</h4>
-                         <p className="text-sm text-gray-700">{result.usage_and_safety_guidelines.allergy_risks || 'No specific allergens'}</p>
-                       </div>
-                     </>
-                   )}
-                   
-                   {/* HOUSEHOLD_CHEMICAL fields */}
-                   {result.product_category === 'HOUSEHOLD_CHEMICAL' && (
-                     <>
-                       <div className="p-5">
-                         <h4 className="font-bold text-amber-700 mb-2 flex items-center gap-1">⚠️ Handle With Care</h4>
-                         <p className="text-sm text-gray-700">{result.usage_and_safety_guidelines.handling_safety || result.usage_and_safety_guidelines.caution_warnings || 'Not specified'}</p>
-                       </div>
-                       <div className="p-5">
-                         <h4 className="font-bold text-blue-700 mb-2 flex items-center gap-1">📦 Storage</h4>
-                         <p className="text-sm text-gray-700">{result.usage_and_safety_guidelines.storage_requirements || 'Not specified'}</p>
-                       </div>
-                     </>
-                   )}
-                   
-                   {/* OTHER category */}
-                   {result.product_category === 'OTHER' && (
-                     <>
-                       <div className="p-5">
-                         <h4 className="font-bold text-gray-700 mb-2 flex items-center gap-1">ℹ️ General Safety</h4>
-                         <p className="text-sm text-gray-700">{result.usage_and_safety_guidelines.general_safety || 'Not specified'}</p>
-                       </div>
-                       <div className="p-5">
-                         <h4 className="font-bold text-amber-700 mb-2 flex items-center gap-1">⚠️ Warnings</h4>
-                         <p className="text-sm text-gray-700">{result.usage_and_safety_guidelines.material_warnings || result.usage_and_safety_guidelines.caution_warnings || 'None'}</p>
-                       </div>
-                     </>
-                   )}
-                 </div>
-                 
-                 {/* Disposal/Environmental for applicable categories */}
-                 {(result.usage_and_safety_guidelines.disposal_info || result.usage_and_safety_guidelines.environmental_impact) && (
-                   <div className={`p-5 ${
-                     result.product_category === 'HOUSEHOLD_CHEMICAL' ? 'bg-purple-50' :
-                     result.product_category === 'OTHER' ? 'bg-gray-50' : 'bg-green-50'
-                   }`}>
-                     <h4 className="font-bold text-sm mb-1 flex items-center gap-1">
-                       {result.product_category === 'HOUSEHOLD_CHEMICAL' ? '♻️ Disposal' : '🌍 Environmental'}
-                     </h4>
-                     <p className="text-sm">
-                       {result.usage_and_safety_guidelines.disposal_info || result.usage_and_safety_guidelines.environmental_impact}
-                     </p>
-                   </div>
-                 )}
-               </CardContent>
+                <div className={`p-6 border-b ${
+                  result.product_category === 'FOOD_DRINK' ? 'bg-gradient-to-r from-green-50 to-transparent border-green-100' :
+                  result.product_category === 'COSMETIC_SKINCARE' ? 'bg-gradient-to-r from-pink-50 to-transparent border-pink-100' :
+                  result.product_category === 'HOUSEHOLD_CHEMICAL' ? 'bg-gradient-to-r from-purple-50 to-transparent border-purple-100' :
+                  'bg-gradient-to-r from-gray-50 to-transparent border-gray-100'
+                }`}>
+                  <h3 className={`font-bold flex items-center gap-2 ${
+                    result.product_category === 'FOOD_DRINK' ? 'text-green-800' :
+                    result.product_category === 'COSMETIC_SKINCARE' ? 'text-pink-800' :
+                    result.product_category === 'HOUSEHOLD_CHEMICAL' ? 'text-purple-800' :
+                    'text-gray-800'
+                  }`}>
+                    <ShieldCheck className="h-5 w-5" /> 
+                    {result.product_category === 'FOOD_DRINK' ? 'Food & Nutrition Guide' :
+                     result.product_category === 'COSMETIC_SKINCARE' ? 'Skin Safety & Usage Guide' :
+                     result.product_category === 'HOUSEHOLD_CHEMICAL' ? 'Safe Handling Guide' :
+                     'Product Safety Guide'}
+                  </h3>
+                </div>
+                <CardContent className="p-0">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x">
+                    {/* FOOD_DRINK fields */}
+                    {result.product_category === 'FOOD_DRINK' && (
+                      <>
+                        <div className="p-5">
+                          <h4 className="font-bold text-green-700 mb-2 flex items-center gap-1">✅ Good Points</h4>
+                          <p className="text-sm text-gray-700">{result.usage_and_safety_guidelines?.what_to_eat || 'Not specified'}</p>
+                        </div>
+                        <div className="p-5">
+                          <h4 className="font-bold text-red-700 mb-2 flex items-center gap-1">⚠️ Concerns</h4>
+                          <p className="text-sm text-gray-700">{result.usage_and_safety_guidelines?.what_not_to_eat || 'Not specified'}</p>
+                        </div>
+                      </>
+                    )}
+                    
+                    {/* COSMETIC_SKINCARE fields */}
+                    {result.product_category === 'COSMETIC_SKINCARE' && (
+                      <>
+                        <div className="p-5">
+                          <h4 className="font-bold text-green-700 mb-2 flex items-center gap-1">✅ Skin Safe</h4>
+                          <p className="text-sm text-gray-700">{result.usage_and_safety_guidelines?.skin_safety || result.usage_and_safety_guidelines?.proper_usage || 'Not specified'}</p>
+                        </div>
+                        <div className="p-5">
+                          <h4 className="font-bold text-amber-700 mb-2 flex items-center gap-1">⚠️ Allergy Alert</h4>
+                          <p className="text-sm text-gray-700">{result.usage_and_safety_guidelines?.allergy_risks || 'No specific allergens'}</p>
+                        </div>
+                      </>
+                    )}
+                    
+                    {/* HOUSEHOLD_CHEMICAL fields */}
+                    {result.product_category === 'HOUSEHOLD_CHEMICAL' && (
+                      <>
+                        <div className="p-5">
+                          <h4 className="font-bold text-amber-700 mb-2 flex items-center gap-1">⚠️ Handle With Care</h4>
+                          <p className="text-sm text-gray-700">{result.usage_and_safety_guidelines?.handling_safety || result.usage_and_safety_guidelines?.caution_warnings || 'Not specified'}</p>
+                        </div>
+                        <div className="p-5">
+                          <h4 className="font-bold text-blue-700 mb-2 flex items-center gap-1">📦 Storage</h4>
+                          <p className="text-sm text-gray-700">{result.usage_and_safety_guidelines?.storage_requirements || 'Not specified'}</p>
+                        </div>
+                      </>
+                    )}
+                    
+                    {/* OTHER category */}
+                    {result.product_category === 'OTHER' && (
+                      <>
+                        <div className="p-5">
+                          <h4 className="font-bold text-gray-700 mb-2 flex items-center gap-1">ℹ️ General Safety</h4>
+                          <p className="text-sm text-gray-700">{result.usage_and_safety_guidelines?.general_safety || 'Not specified'}</p>
+                        </div>
+                        <div className="p-5">
+                          <h4 className="font-bold text-amber-700 mb-2 flex items-center gap-1">⚠️ Warnings</h4>
+                          <p className="text-sm text-gray-700">{result.usage_and_safety_guidelines?.material_warnings || result.usage_and_safety_guidelines?.caution_warnings || 'None'}</p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  
+                  {/* Disposal/Environmental for applicable categories */}
+                  {(result.usage_and_safety_guidelines?.disposal_info || result.usage_and_safety_guidelines?.environmental_impact) && (
+                    <div className={`p-5 ${
+                      result.product_category === 'HOUSEHOLD_CHEMICAL' ? 'bg-purple-50' :
+                      result.product_category === 'OTHER' ? 'bg-gray-50' : 'bg-green-50'
+                    }`}>
+                      <h4 className="font-bold text-sm mb-1 flex items-center gap-1">
+                        {result.product_category === 'HOUSEHOLD_CHEMICAL' ? '♻️ Disposal' : '🌍 Environmental'}
+                      </h4>
+                      <p className="text-sm">
+                        {result.usage_and_safety_guidelines?.disposal_info || result.usage_and_safety_guidelines?.environmental_impact}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
             </Card>
           </motion.div>
         )}
@@ -296,54 +302,54 @@ export default function Results() {
             <h2 className="text-xl font-bold text-[#064e3b] mb-6 flex items-center gap-2">
               <ShoppingBag className="text-[#16a34a]" /> Healthier Alternatives
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-               {result.online_alternatives.map((alt: string, idx: number) => (
-                 <motion.div
-                   key={idx}
-                   initial={{ opacity: 0, scale: 0.95 }}
-                   whileInView={{ opacity: 1, scale: 1 }}
-                   viewport={{ once: true, margin: "-20px" }}
-                   transition={{ delay: idx * 0.1 }}
-                 >
-                   <Card className="shadow-sm border-[#16a34a]/20 hover:shadow-md transition-shadow h-full">
-                      <CardContent className="p-5 flex gap-3 pb-6">
-                         <div className="w-10 h-10 bg-[#f0fdf4] rounded-full flex items-center justify-center flex-shrink-0 text-[#16a34a] font-bold">
-                           {idx + 1}
-                         </div>
-                         <p className="text-sm font-medium text-gray-800 pt-1 leading-snug">{alt}</p>
-                      </CardContent>
-                   </Card>
-                 </motion.div>
-               ))}
-            </div>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {result.online_alternatives && result.online_alternatives.map((alt: string, idx: number) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true, margin: "-20px" }}
+                    transition={{ delay: idx * 0.1 }}
+                  >
+                    <Card className="shadow-sm border-[#16a34a]/20 hover:shadow-md transition-shadow h-full">
+                       <CardContent className="p-5 flex gap-3 pb-6">
+                          <div className="w-10 h-10 bg-[#f0fdf4] rounded-full flex items-center justify-center flex-shrink-0 text-[#16a34a] font-bold">
+                            {idx + 1}
+                          </div>
+                          <p className="text-sm font-medium text-gray-800 pt-1 leading-snug">{alt || 'Alternative product'}</p>
+                       </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+             </div>
          </motion.div>
       )}
 
       {result.claims && result.claims.length > 0 && (
         <div className="mb-12">
           <h2 className="text-xl font-bold text-[#064e3b] mb-6">Marketing Claims vs. Reality</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {result.claims.map((claim: any, idx: number) => (
-               <motion.div
-                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                 whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                 viewport={{ once: true, margin: "-20px" }}
-                 transition={{ delay: Math.min(idx * 0.1, 0.4) }}
-                 key={idx}
-                 className="bg-white rounded-xl border p-5 shadow-sm"
-               >
-                 <p className="text-gray-500 italic text-sm mb-4">"{claim.claim_text}"</p>
-                 <div className="mb-3">
-                   {claim.verdict === 'TRUE' && <Badge className="bg-green-500 text-white hover:bg-green-600 text-xs px-2 py-1">✅ TRUE</Badge>}
-                   {claim.verdict === 'MISLEADING' && <Badge className="bg-amber-500 text-white hover:bg-amber-600 text-xs px-2 py-1">⚠️ MISLEADING</Badge>}
-                   {claim.verdict === 'FALSE' && <Badge className="bg-red-500 text-white hover:bg-red-600 text-xs px-2 py-1">❌ FALSE</Badge>}
-                 </div>
-                 <p className="text-sm font-medium text-gray-800 leading-relaxed">{claim.explanation}</p>
-               </motion.div>
-            ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {result.claims && result.claims.map((claim: any, idx: number) => (
+                 <motion.div
+                   initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                   whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                   viewport={{ once: true, margin: "-20px" }}
+                   transition={{ delay: Math.min(idx * 0.1, 0.4) }}
+                   key={idx}
+                   className="bg-white rounded-xl border p-5 shadow-sm"
+                 >
+                   <p className="text-gray-500 italic text-sm mb-4">"{claim.claim_text || ''}"</p>
+                   <div className="mb-3">
+                     {claim.verdict === 'TRUE' && <Badge className="bg-green-500 text-white hover:bg-green-600 text-xs px-2 py-1">✅ TRUE</Badge>}
+                     {claim.verdict === 'MISLEADING' && <Badge className="bg-amber-500 text-white hover:bg-amber-600 text-xs px-2 py-1">⚠️ MISLEADING</Badge>}
+                     {claim.verdict === 'FALSE' && <Badge className="bg-red-500 text-white hover:bg-red-600 text-xs px-2 py-1">❌ FALSE</Badge>}
+                   </div>
+                   <p className="text-sm font-medium text-gray-800 leading-relaxed">{claim.explanation || 'No explanation provided'}</p>
+                 </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
         <div className="lg:col-span-2">
@@ -364,26 +370,26 @@ export default function Results() {
         </div>
 
         <div className="space-y-8">
-           <motion.div
-             initial={{ opacity: 0, x: 20 }}
-             whileInView={{ opacity: 1, x: 0 }}
-             viewport={{ once: true, margin: "-20px" }}
-           >
-             <Card className="shadow-sm">
-               <CardContent className="p-6">
-                  <h3 className="font-bold text-[#064e3b] mb-6">Additive Breakdown</h3>
-                  {result.safety_breakdown && (
-                    <div className="space-y-5">
-                       <BreakdownBar label="Sugar Level" value={result.safety_breakdown.sugar_level || 0} invertColor />
-                       <BreakdownBar label="Sodium Level" value={result.safety_breakdown.sodium_level || 0} invertColor />
-                       <BreakdownBar label="Preservatives" value={result.safety_breakdown.preservatives_level || 0} invertColor />
-                       <BreakdownBar label="Artificial Additives" value={result.safety_breakdown.artificial_additives_level || 0} invertColor />
-                       <BreakdownBar label="Allergen Risk" value={result.safety_breakdown.allergen_risk || 0} invertColor />
-                    </div>
-                  )}
-               </CardContent>
-             </Card>
-           </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-20px" }}
+            >
+              <Card className="shadow-sm">
+                <CardContent className="p-6">
+                   <h3 className="font-bold text-[#064e3b] mb-6">Additive Breakdown</h3>
+                   {result.safety_breakdown && (
+                     <div className="space-y-5">
+                        <BreakdownBar label="Sugar Level" value={Number(result.safety_breakdown.sugar_level) || 0} invertColor />
+                        <BreakdownBar label="Sodium Level" value={Number(result.safety_breakdown.sodium_level) || 0} invertColor />
+                        <BreakdownBar label="Preservatives" value={Number(result.safety_breakdown.preservatives_level) || 0} invertColor />
+                        <BreakdownBar label="Artificial Additives" value={Number(result.safety_breakdown.artificial_additives_level) || 0} invertColor />
+                        <BreakdownBar label="Allergen Risk" value={Number(result.safety_breakdown.allergen_risk) || 0} invertColor />
+                     </div>
+                   )}
+                </CardContent>
+              </Card>
+            </motion.div>
 
            {result.warnings && result.warnings.length > 0 && (
              <motion.div
@@ -407,24 +413,49 @@ export default function Results() {
         </div>
       </div>
 
-      <div className="mt-8 pt-8 border-t space-y-6">
-         {result.sources && result.sources.length > 0 && (
-           <div className="flex flex-col gap-2">
-              <span className="text-sm font-bold text-[#064e3b]">Sources & References:</span>
-              <div className="flex flex-wrap gap-2">
-                {result.sources.map((src: string, i: number) => {
+       <div className="mt-8 pt-8 border-t space-y-6">
+          {result.sources && result.sources.length > 0 && (
+            <div className="flex flex-col gap-2">
+               <span className="text-sm font-bold text-[#064e3b]">Sources & References:</span>
+               <div className="flex flex-wrap gap-2">
+                 {result.sources.map((src: string, i: number) => {
+                   if (!src) return null;
                    const isUrl = src.startsWith('http');
-                   return isUrl ? (
-                     <a key={i} href={src} target="_blank" rel="noopener noreferrer" className="text-xs bg-white border border-[#16a34a]/20 text-[#16a34a] hover:bg-[#16a34a] hover:text-white transition-colors px-3 py-1.5 rounded-full inline-flex items-center gap-1 shadow-sm">
-                       {new URL(src).hostname.replace('www.', '')} <Share2 size={10} />
-                     </a>
-                   ) : (
+                   if (isUrl) {
+                     try {
+                       const url = new URL(src);
+                       const hostname = url.hostname.replace('www.', '');
+                       const path = url.pathname;
+                       // Truncate display: show hostname + first path segment, max 40 chars
+                       const displayUrl = path ? `${hostname}${path.length > 30 ? path.substring(0, 30) + '...' : path}` : hostname;
+                       return (
+                         <a 
+                           key={i} 
+                           href={src} 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           className="text-xs bg-white border border-[#16a34a]/20 text-[#16a34a] hover:bg-[#16a34a] hover:text-white transition-colors px-3 py-1.5 rounded-full inline-flex items-center gap-1 shadow-sm truncate max-w-[200px]"
+                           title={src}
+                         >
+                           {displayUrl} <Share2 size={10} className="flex-shrink-0" />
+                         </a>
+                       );
+                     } catch (e) {
+                       // Invalid URL, fallback to text badge
+                       return (
+                         <Badge key={i} variant="outline" className="text-xs text-gray-500 bg-gray-50 font-medium px-3 py-1 truncate max-w-[200px]">
+                           {src.substring(0, 50)}{src.length > 50 ? '...' : ''}
+                         </Badge>
+                       );
+                     }
+                   }
+                   return (
                      <Badge key={i} variant="outline" className="text-xs text-gray-500 bg-gray-50 font-medium px-3 py-1">{src}</Badge>
                    );
-                })}
-              </div>
-           </div>
-         )}
+                 })}
+               </div>
+            </div>
+          )}
          <p className="text-xs text-gray-400 bg-gray-50 p-4 rounded-xl border border-gray-100">
            ⚠️ This Scanly analysis is generated by AI and is for informational purposes only. It is not medical advice, nutritional guidance, or a substitute for professional consultation. Accuracy may vary. Always read product labels directly.
          </p>
@@ -516,18 +547,20 @@ function WarningBadge({ warning }: { warning: any; key?: any }) {
     <div className={`flex items-start gap-2 p-3 rounded-lg border ${styles}`}>
       <span className="text-sm pt-0.5">{icon}</span>
       <div className="flex-1">
-         <div className="font-semibold text-sm">{warning.type}</div>
-         <div className="text-xs mt-0.5 leading-snug opacity-90">{warning.message}</div>
+         <div className="font-semibold text-sm">{warning.type || 'Warning'}</div>
+         <div className="text-xs mt-0.5 leading-snug opacity-90">{warning.message || 'No details'}</div>
       </div>
     </div>
   );
 }
 
 function IngredientCard({ ingredient }: { ingredient: any }) {
+  if (!ingredient) return null;
+  
   let colorClass = "border-gray-400";
   let impactIcon = "⚪";
   let impactLabel = "Neutral";
-  
+   
   if (ingredient.health_impact === 'beneficial') {
     colorClass = "border-green-500"; impactIcon = "✅"; impactLabel = "Beneficial";
   } else if (ingredient.health_impact === 'caution') {
@@ -547,18 +580,19 @@ function IngredientCard({ ingredient }: { ingredient: any }) {
         <div className="p-4 sm:p-5">
           <div className="flex items-start justify-between gap-4 mb-2">
             <div>
-              <h4 className="font-bold text-gray-900">{ingredient.simplified_name}</h4>
-              <p className="text-xs text-gray-400 mt-0.5">{ingredient.original_name}</p>
+              <h4 className="font-bold text-gray-900">{ingredient.simplified_name || 'Unknown Ingredient'}</h4>
+              <p className="text-xs text-gray-400 mt-0.5">{ingredient.original_name || ''}</p>
             </div>
             <div className="flex flex-col items-end gap-2">
-              <Badge variant="outline" className="text-xs bg-gray-50">{ingredient.function}</Badge>
+              <Badge variant="outline" className="text-xs bg-gray-50">{ingredient.function || 'Unknown'}</Badge>
               <div className="flex items-center text-xs font-medium gap-1 text-gray-600">
                 <span>{impactIcon}</span> <span>{impactLabel}</span>
               </div>
             </div>
           </div>
-          <p className="text-sm text-gray-700 leading-relaxed mb-3">{ingredient.explanation}</p>
+          <p className="text-sm text-gray-700 leading-relaxed mb-3">{ingredient.explanation || 'No explanation available'}</p>
           
+          {ingredient.detail && (
           <details className="group">
             <summary className="text-xs font-semibold text-[#16a34a] cursor-pointer hover:underline outline-none list-none">
               <span className="flex items-center gap-1 group-open:hidden">See more <span>↓</span></span>
@@ -568,6 +602,7 @@ function IngredientCard({ ingredient }: { ingredient: any }) {
               {ingredient.detail}
             </div>
           </details>
+          )}
         </div>
       </CardContent>
     </Card>

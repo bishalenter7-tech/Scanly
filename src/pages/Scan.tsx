@@ -33,39 +33,45 @@ export default function Scan() {
     maxSize: 10485760, // 10MB
   } as any);
 
-  const handleFileSelection = async (selectedFile: File) => {
-    try {
-      const options = {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 1200,
-        useWebWorker: true,
-      };
-      
-      const compressedFile = await imageCompression(selectedFile, options);
-      setFile(compressedFile);
-      
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        setLocalImage(result);
-        setImage(result);
-      };
-      reader.readAsDataURL(compressedFile);
-    } catch (e) {
-      console.error("Compression error:", e);
-    }
-  };
+   const handleFileSelection = async (selectedFile: File) => {
+     try {
+       // Clear previous result immediately to prevent UI flashing
+       setResult(null);
+       
+       const options = {
+         maxSizeMB: 1,
+         maxWidthOrHeight: 1200,
+         useWebWorker: true,
+       };
+       
+       const compressedFile = await imageCompression(selectedFile, options);
+       setFile(compressedFile);
+       
+       const reader = new FileReader();
+       reader.onload = () => {
+         const result = reader.result as string;
+         setLocalImage(result);
+         setImage(result);
+       };
+       reader.readAsDataURL(compressedFile);
+     } catch (e) {
+       console.error("Compression error:", e);
+     }
+   };
 
-  const handleAnalyze = async () => {
-    if (!localImage || !file) {
-      setError("Please select an image first");
-      return;
-    }
-    
-    setIsProcessing(true);
-    setAnalyzing(true);
-    setError(null);
-    setLoadingStep(1);
+   const handleAnalyze = async () => {
+     if (!localImage || !file) {
+       setError("Please select an image first");
+       return;
+     }
+     
+     // Clear previous result immediately to prevent UI flashing
+     setResult(null);
+     
+     setIsProcessing(true);
+     setAnalyzing(true);
+     setError(null);
+     setLoadingStep(1);
 
     const stepsInterval = setInterval(() => {
       setLoadingStep(prev => (prev < 5 ? prev + 1 : prev));
