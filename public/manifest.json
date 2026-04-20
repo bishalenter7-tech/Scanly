@@ -1,0 +1,40 @@
+{
+  "name": "Scanly",
+  "short_name": "Scanly",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "description": "AI-powered food ingredient scanner and safety rating tool",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/Scanly.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/Scanly.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/Scanly.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "192x192"
+    },
+    {
+      "src": "/Scanly.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "512x512"
+    }
+  ],
+  "categories": ["food", "health", "lifestyle"],
+  "lang": "en",
+  "dir": "ltr"
+}

@@ -1,8 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import imageCompression from 'browser-image-compression';
-import { Camera, Image as ImageIcon, X, UploadCloud, Loader2, Search } from 'lucide-react';
+import { Camera, Image as ImageIcon, X, UploadCloud, Loader2, Search, Tv } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { useScanStore } from '../store/scanStore';
 import { analyzeProduct } from '../lib/gemini';
@@ -20,6 +20,37 @@ export default function Scan() {
   const [file, setFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
+  const [showOutOfScansModal, setShowOutOfScansModal] = useState(false);
+  const [adCountdown, setAdCountdown] = useState(15);
+  const [isWatchingAd, setIsWatchingAd] = useState(false);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  
+  const checkAndResetScans = useScanStore((state) => state.checkAndResetScans);
+  const useScan = useScanStore((state) => state.useScan);
+  const rewardScan = useScanStore((state) => state.rewardScan);
+const freeScansLimit = useScanStore((state) => state.freeScansLimit);
+
+  // Countdown timer effect for ad watching
+  useEffect(() => {
+    if (isWatchingAd && adCountdown > 0) {
+      const timer = setTimeout(() => setAdCountdown(adCountdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+    if (isWatchingAd && adCountdown === 0) {
+      rewardScan();
+      setShowOutOfScansModal(false);
+      setIsWatchingAd(false);
+      setAdCountdown(15);
+      setShowSuccessToast(true);
+      setTimeout(() => setShowSuccessToast(false), 3000);
+    }
+  }, [isWatchingAd, adCountdown, rewardScan]);
+
+  // Watch ad and unlock scan
+  const handleWatchAd = () => {
+    window.open('https://omg10.com/4/10899914', '_blank');
+    setIsWatchingAd(true);
+  };
 
   const onDrop = async (acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -59,19 +90,29 @@ export default function Scan() {
      }
    };
 
-   const handleAnalyze = async () => {
-     if (!localImage || !file) {
-       setError("Please select an image first");
-       return;
-     }
-     
-     // Clear previous result immediately to prevent UI flashing
-     setResult(null);
-     
-     setIsProcessing(true);
-     setAnalyzing(true);
-     setError(null);
-     setLoadingStep(1);
+const handleAnalyze = async () => {
+      if (!localImage || !file) {
+        setError("Please select an image first");
+        return;
+      }
+      
+      // Check and reset scans if 24h have passed, or show modal if limit reached
+      const canScan = checkAndResetScans();
+      if (!canScan) {
+        setShowOutOfScansModal(true);
+        return;
+      }
+      
+      // Use one scan credit
+      useScan();
+      
+      // Clear previous result immediately to prevent UI flashing
+      setResult(null);
+      
+      setIsProcessing(true);
+      setAnalyzing(true);
+      setError(null);
+      setLoadingStep(1);
 
     const stepsInterval = setInterval(() => {
       setLoadingStep(prev => (prev < 5 ? prev + 1 : prev));
@@ -223,60 +264,106 @@ export default function Scan() {
         )}
       </AnimatePresence>
 
-      {/* Loading Overlay */}
+      {/* Out of Scans Modal */}
       <AnimatePresence>
-        {isProcessing && (
-          <motion.div 
+        {showOutOfScansModal && (
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-[#064e3b]/90 z-50 flex items-center justify-center backdrop-blur-md p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
           >
-            {/* Visual Scanning Effect */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30">
-               <div className="relative w-3/4 max-w-sm rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl">
-                 <img src={localImage || ''} alt="" className="w-full h-full object-cover grayscale blur-sm" />
-                 <motion.div 
-                   animate={{ y: ["0%", "100%", "0%"] }}
-                   transition={{ duration: 3, ease: "linear", repeat: Infinity }}
-                   className="absolute top-0 left-0 right-0 h-1 bg-[#16a34a] shadow-[0_0_20px_4px_rgba(22,163,74,0.8)] z-10"
-                 />
-                 <motion.div 
-                   animate={{ y: ["0%", "100%", "0%"] }}
-                   transition={{ duration: 3, ease: "linear", repeat: Infinity }}
-                   className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-[#16a34a]/40 mix-blend-overlay z-0"
-                 />
-               </div>
-            </div>
-
             <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              className="bg-white rounded-[2rem] p-8 max-w-sm w-full space-y-8 shadow-[0_20px_60px_rgba(0,0,0,0.5)] border border-white/20 relative z-20"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => { if (!isWatchingAd) setShowOutOfScansModal(false); }}
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl border border-[#16a34a]/20 z-10"
             >
-              <div className="flex justify-center">
-                 <div className="relative">
-                   <div className="absolute inset-0 flex items-center justify-center text-[#16a34a]">
-                     <Search size={32} />
-                   </div>
-                   <div className="w-24 h-24 border-4 border-[#16a34a]/10 rounded-full animate-spin"></div>
-                   <div className="w-24 h-24 border-4 border-[#16a34a] rounded-full animate-spin absolute top-0 left-0 border-t-transparent border-r-transparent drop-shadow-[0_0_10px_rgba(22, 163, 74,0.5)]"></div>
-                 </div>
+              <div className="text-center">
+                {isWatchingAd ? (
+                  <>
+                    <motion.div 
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ repeat: Infinity, duration: 1 }}
+                      className="text-6xl mb-4"
+                    >
+                      ⏳
+                    </motion.div>
+                    <h3 className="text-2xl font-bold text-[#064e3b] mb-2">
+                      Unlocking in {adCountdown} seconds...
+                    </h3>
+                    <p className="text-gray-600 mb-6">
+                      Please hold on. Your scan will be unlocked automatically.
+                    </p>
+                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <motion.div 
+                        initial={{ width: "100%" }}
+                        animate={{ width: `${((15 - adCountdown) / 15) * 100}%` }}
+                        className="h-full bg-[#16a34a]"
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <motion.div 
+                      initial={{ y: -10 }}
+                      animate={{ y: [0, -10, 0] }}
+                      transition={{ repeat: Infinity, duration: 1.5 }}
+                      className="text-6xl mb-4"
+                    >
+                      🚀
+                    </motion.div>
+                    <h3 className="text-2xl font-bold text-[#064e3b] mb-2">
+                      Wow, you're a scanning pro!
+                    </h3>
+                    <p className="text-gray-600 mb-6">
+                      You've used your 2 free daily scans. No worries though—you can unlock another scan right now by watching a quick ad, or come back tomorrow for a free refill!
+                    </p>
+                    <Button 
+                      onClick={handleWatchAd}
+                      className="w-full bg-[#16a34a] hover:bg-[#15803d] h-14 text-lg font-bold rounded-xl flex items-center justify-center gap-2"
+                    >
+                      <Tv className="h-5 w-5" />
+                      Watch Ad to Unlock
+                    </Button>
+                    <button 
+                      onClick={() => setShowOutOfScansModal(false)}
+                      className="w-full mt-3 text-sm text-gray-400 hover:text-gray-600"
+                    >
+                      Maybe later
+                    </button>
+                  </>
+                )}
               </div>
-              
-              <div className="space-y-4 bg-[#f0fdf4] p-5 rounded-2xl border border-[#16a34a]/5 h-56 overflow-y-auto custom-scrollbar">
-                <LoadingStep active={loadingStep >= 0} text="📸 Analyzing product image..." />
-                <LoadingStep active={loadingStep >= 1} text="🔍 Extracting label text & ingredients..." />
-                <LoadingStep active={loadingStep >= 2} text="🏷️ Detecting product category..." />
-                <LoadingStep active={loadingStep >= 3} text="🗄️ Fetching safety database..." />
-                <LoadingStep active={loadingStep >= 4} text="⚗️ Analyzing ingredient safety..." />
-                <LoadingStep active={loadingStep >= 5} text="📊 Generating detailed report..." />
-              </div>
-
-              <p className="text-center text-xs font-semibold text-[#16a34a] animate-pulse">This usually takes 20–30 seconds</p>
             </motion.div>
           </motion.div>
         )}
+      </AnimatePresence>
+
+      {/* Success Toast */}
+      <AnimatePresence>
+        {showSuccessToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-green-500 text-white py-3 px-6 rounded-full font-medium shadow-lg"
+          >
+            Scan Unlocked! You're good to go.
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Premium Loading Skeleton - Mimics Results Page */}
+      <AnimatePresence>
+        {isProcessing && <ResultsSkeleton />}
       </AnimatePresence>
     </motion.div>
   );
@@ -292,6 +379,177 @@ function LoadingStep({ active, text }: { active: boolean, text: string }) {
     >
       <div className={`h-2.5 w-2.5 rounded-full shadow-sm flex-shrink-0 ${active ? 'bg-[#16a34a] shadow-[#16a34a]/40' : 'bg-gray-200'}`}></div>
       <span className={`text-sm font-semibold tracking-wide leading-tight ${active ? 'text-[#064e3b]' : 'text-gray-400'}`}>{text}</span>
+    </motion.div>
+  );
+}
+
+function ResultsSkeleton() {
+  const [statusIndex, setStatusIndex] = useState(0);
+  const statuses = [
+    "Extracting label logic...",
+    "Decoding product ingredients...",
+    "Cross-referencing safety databases...",
+    "Generating comprehensive report...",
+    "Almost there..."
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStatusIndex((prev) => (prev + 1) % statuses.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [statuses.length]);
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-[#f0fdf4] z-50 overflow-y-auto"
+    >
+      {/* Header Skeleton */}
+      <div className="bg-white border-b px-4 py-4 sticky top-0">
+        <div className="max-w-5xl mx-auto flex items-center gap-3">
+          <div className="h-6 w-6 bg-gray-200 rounded-full animate-pulse" />
+          <div className="h-5 w-16 bg-gray-200 rounded animate-pulse" />
+          <div className="h-5 w-20 bg-gray-200 rounded animate-pulse ml-auto" />
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 py-8 pb-32 space-y-8">
+        {/* Hero Section Skeleton */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-3xl shadow-sm border p-6 flex flex-col lg:flex-row gap-8"
+        >
+          {/* Product Image Placeholder */}
+          <div className="flex-shrink-0 w-32 h-32 lg:w-48 lg:h-48 rounded-xl bg-gray-200 animate-pulse" />
+          
+          {/* Title, Brand, Badges */}
+          <div className="flex-1 flex flex-col md:flex-row justify-between gap-6">
+            <div className="space-y-3 flex-1">
+              <div className="h-8 w-3/4 bg-gray-200 rounded-xl animate-pulse" />
+              <div className="h-5 w-1/2 bg-gray-200 rounded-xl animate-pulse" />
+              <div className="flex gap-2 mt-2">
+                <div className="h-6 w-24 bg-gray-200 rounded-full animate-pulse" />
+                <div className="h-6 w-20 bg-gray-200 rounded-full animate-pulse" />
+              </div>
+            </div>
+            {/* Safety Gauge Circle */}
+            <div className="flex items-center justify-center">
+              <div className="w-[140px] h-[140px] rounded-full bg-gray-200 animate-pulse" />
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Summary Section Skeleton */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+        >
+          <div className="lg:col-span-2 p-6 bg-white border rounded-2xl shadow-sm">
+            <div className="h-6 w-48 bg-gray-200 rounded-xl animate-pulse mb-4" />
+            <div className="space-y-3">
+              <div className="h-4 w-full bg-gray-200 rounded-xl animate-pulse" />
+              <div className="h-4 w-5/6 bg-gray-200 rounded-xl animate-pulse" />
+              <div className="h-4 w-4/5 bg-gray-200 rounded-xl animate-pulse" />
+              <div className="h-4 w-2/3 bg-gray-200 rounded-xl animate-pulse" />
+            </div>
+          </div>
+          <div className="p-6 bg-white border rounded-2xl shadow-sm">
+            <div className="h-6 w-32 bg-gray-200 rounded-xl animate-pulse mb-4" />
+            <div className="h-32 bg-gray-200 rounded-xl animate-pulse" />
+          </div>
+        </motion.div>
+
+        {/* Charts & Advice Skeleton */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+        >
+          {/* Radar Chart Placeholder */}
+          <div className="lg:col-span-1 p-6 bg-white border rounded-2xl shadow-sm">
+            <div className="h-6 w-40 bg-gray-200 rounded-xl animate-pulse mb-4" />
+            <div className="h-64 bg-gray-200 rounded-xl animate-pulse" />
+          </div>
+          
+          {/* Dietary Advice Placeholder */}
+          <div className="lg:col-span-2 p-6 bg-white border rounded-2xl shadow-sm">
+            <div className="h-6 w-48 bg-gray-200 rounded-xl animate-pulse mb-4" />
+            <div className="space-y-3">
+              <div className="h-4 w-full bg-gray-200 rounded-xl animate-pulse" />
+              <div className="h-4 w-5/6 bg-gray-200 rounded-xl animate-pulse" />
+              <div className="h-4 w-4/5 bg-gray-200 rounded-xl animate-pulse" />
+              <div className="h-4 w-3/4 bg-gray-200 rounded-xl animate-pulse" />
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Ingredients Breakdown Skeleton */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="h-6 w-48 bg-gray-200 rounded-xl animate-pulse mb-4" />
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white border rounded-xl p-5 shadow-sm">
+                <div className="flex items-start justify-between gap-4 mb-3">
+                  <div className="flex-1">
+                    <div className="h-5 w-2/3 bg-gray-200 rounded-xl animate-pulse mb-2" />
+                    <div className="h-3 w-1/3 bg-gray-200 rounded animate-pulse" />
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="h-5 w-16 bg-gray-200 rounded animate-pulse" />
+                    <div className="h-4 w-12 bg-gray-200 rounded animate-pulse" />
+                  </div>
+                </div>
+                <div className="h-4 w-full bg-gray-200 rounded-xl animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Dynamic Status Text */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="fixed bottom-32 left-1/2 -translate-x-1/2 z-50"
+        >
+          <div className="bg-white/90 backdrop-blur-sm px-8 py-4 rounded-full shadow-lg border border-[#16a34a]/20">
+            <motion.p 
+              key={statusIndex}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="text-[#064e3b] font-semibold text-center"
+            >
+              {statuses[statusIndex]}
+            </motion.p>
+          </div>
+        </motion.div>
+
+        {/* Bottom Progress Bar */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="fixed bottom-0 left-0 right-0 bg-white border-t p-4"
+        >
+          <div className="max-w-5xl mx-auto">
+            <div className="h-12 bg-[#16a34a]/10 rounded-xl animate-pulse flex items-center justify-center">
+              <span className="text-[#16a34a] font-medium">Processing your scan...</span>
+            </div>
+          </div>
+        </motion.div>
+      </div>
     </motion.div>
   );
 }

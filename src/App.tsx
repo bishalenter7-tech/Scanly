@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
-import { Camera, Search, Settings as SettingsIcon, History as HistoryIcon, Info, LogOut, Menu, X, ShieldCheck, AlertCircle, Sparkles } from 'lucide-react';
+import { Camera, Search, Settings as SettingsIcon, History as HistoryIcon, Info, LogOut, Menu, X, ShieldCheck, AlertCircle, Sparkles, Download, Smartphone } from 'lucide-react';
 import Landing from './pages/Landing';
 import Scan from './pages/Scan';
 import Results from './pages/Results';
@@ -13,6 +13,7 @@ import LanguageSelector from './components/LanguageSelector';
 import { useAuthStore } from './store/authStore';
 import { useAppStore } from './store/appStore';
 import { useScanStore } from './store/scanStore';
+import { usePWAInstall } from './hooks/usePWAInstall';
 import { Button } from './components/ui/button';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -223,6 +224,8 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [showOnlineToast, setShowOnlineToast] = useState(false);
+  
+  const { isInstallable, handleInstall } = usePWAInstall();
 
   useEffect(() => {
     const handleOffline = () => setIsOffline(true);
@@ -311,6 +314,19 @@ export default function App() {
                 <Link to="/contact" className="text-sm font-semibold hover:text-[#16a34a] flex items-center gap-1.5 transition-colors">
                   Contact
                 </Link>
+                {isInstallable && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleInstall}
+                    className="flex items-center gap-2 bg-gradient-to-r from-[#16a34a] to-[#15803d] hover:from-[#15803d] hover:to-[#166534] text-white text-sm font-bold px-4 py-2 rounded-xl shadow-lg shadow-[#16a34a]/30 transition-all"
+                  >
+                    <Smartphone size={16} />
+                    Install App
+                  </motion.button>
+                )}
                 <Link to="/settings" className="text-gray-400 hover:text-[#16a34a] transition-colors">
                   <SettingsIcon size={20} />
                 </Link>

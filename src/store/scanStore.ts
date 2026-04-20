@@ -8,7 +8,17 @@ export interface ScanHistoryItem {
   id: string;
   date: string;
   result: AnalysisResult;
-  imageBase64?: string; // Stored to preserve history images natively
+  imageBase64?: string;
+}
+
+export interface CompactScanItem {
+  id: string;
+  timestamp: number;
+  productName: string;
+  safetyScore: number;
+  safetyVerdict: string;
+  category: string;
+  imageUrl?: string;
 }
 
 interface ScanStore {
@@ -18,6 +28,9 @@ interface ScanStore {
   result: AnalysisResult | null;
   error: string | null;
   history: ScanHistoryItem[];
+  scanHistory: CompactScanItem[];
+  freeScansLimit: number;
+  lastResetDate: number;
   setLanguage: (lang: string) => void;
   setImage: (image: string | null) => void;
   setAnalyzing: (loading: boolean) => void;
@@ -28,6 +41,12 @@ interface ScanStore {
   clearHistory: () => void;
   removeOldHistory: () => void;
   syncFromFirebase: () => Promise<void>;
+  checkAndResetScans: () => boolean;
+  useScan: () => void;
+  rewardScan: () => void;
+  addScanToHistory: (scanData: Omit<CompactScanItem, 'id' | 'timestamp'>) => void;
+  cleanOldHistory: () => void;
+  clearAllHistory: () => void;
 }
 
 export const useScanStore = create<ScanStore>()(
@@ -39,12 +58,61 @@ export const useScanStore = create<ScanStore>()(
       result: null,
       error: null,
       history: [],
+      scanHistory: [],
+      freeScansLimit: 2,
+      lastResetDate: Number(Date.now()),
       setLanguage: (lang) => set({ language: lang }),
       setImage: (image) => set({ imagePreview: image }),
       setAnalyzing: (loading) => set({ isAnalyzing: loading }),
       setResult: (result) => set({ result }),
       setError: (error) => set({ error }),
       reset: () => set({ imagePreview: null, isAnalyzing: false, result: null, error: null }),
+      checkAndResetScans: () => {
+        const { lastResetDate, freeScansLimit } = get();
+        const now = Number(Date.now());
+        const twentyFourHours = 86400000;
+        
+        if (now - lastResetDate >= twentyFourHours) {
+          set({ freeScansLimit: 2, lastResetDate: now });
+          return true;
+        }
+        return freeScansLimit > 0;
+      },
+      useScan: () => {
+        const { freeScansLimit } = get();
+        set({ freeScansLimit: Math.max(0, freeScansLimit - 1) });
+      },
+      rewardScan: () => {
+        const { freeScansLimit } = get();
+        set({ freeScansLimit: freeScansLimit + 1 });
+      },
+      addScanToHistory: (scanData) => {
+        const newItem: CompactScanItem = {
+          id: crypto.randomUUID(),
+          timestamp: Date.now(),
+          productName: scanData.productName,
+          safetyScore: scanData.safetyScore,
+          safetyVerdict: scanData.safetyVerdict,
+          category: scanData.category,
+          imageUrl: scanData.imageUrl,
+        };
+        set((state) => ({ scanHistory: [newItem, ...state.scanHistory] }));
+        // Clean old history after adding new item
+        get().cleanOldHistory();
+      },
+      cleanOldHistory: () => {
+        const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+        const now = Date.now();
+        set((state) => ({
+          scanHistory: state.scanHistory.filter((item) => now - item.timestamp < SEVEN_DAYS),
+        }));
+      },
+      clearAllHistory: () => {
+        set({ scanHistory: [], history: [] });
+        if (auth.currentUser) {
+          clearScansFromFirestore(auth.currentUser.uid);
+        }
+      },
       saveToHistory: (result, imageBase64?) => {
         const id = crypto.randomUUID();
         const date = new Date().toISOString();
@@ -86,7 +154,12 @@ export const useScanStore = create<ScanStore>()(
     }),
     {
       name: 'truthscan-history-storage',
-      partialize: (state) => ({ history: state.history }),
+      partialize: (state) => ({ 
+        history: state.history,
+        scanHistory: state.scanHistory,
+        freeScansLimit: state.freeScansLimit,
+        lastResetDate: state.lastResetDate
+      }),
     }
   )
 );

@@ -6,6 +6,11 @@
     <title>Scanly AI | Food Ingredient Scanner & Harmful Ingredient Detector</title>
     <meta name="description" content="Use Scanly AI to scan food labels, decode harmful ingredients, and get instant safety scores. Your smart AI-powered food analysis tool to ensure consumer safety." />
     <meta name="monetag" content="d738f8ea2b6745541f6d739c7e405463">
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Scanly">
+    <link rel="apple-touch-icon" href="/Scanly.png">
     
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
@@ -23,10 +28,31 @@
       }
     }
     </script>
+    <!-- OneSignal SDK -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(function(OneSignal) {
+        OneSignal.init({
+          appId: "2d7bea22-3fe4-4fba-acda-da5d3d8df1cc",
+          notifyButton: {
+            enable: false,
+          },
+          allowLocalhostAsSecureOrigin: true
+        });
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Monetag Vignette Banner -->
+    <script>(function(s){s.dataset.zone='10899915',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    
+    <!-- Monetag In-Page Push -->
+    <script>(function(s){s.dataset.zone='10899916',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    
     <!-- [INSERT_MONETAG_GLOBAL_SCRIPT_HERE] -->
   </body>
 </html>
