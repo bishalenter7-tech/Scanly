@@ -1,11 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Camera, ScanSearch, ShieldCheck, FileCheck, Languages, Sparkles, BrainCircuit, FlaskConical, BadgeCheck, BarChart3 } from 'lucide-react';
+import { Camera, ScanSearch, ShieldCheck, FileCheck, Languages, Sparkles, BrainCircuit, FlaskConical, BadgeCheck, BarChart3, Smartphone, Download, X } from 'lucide-react';
 import { Button, buttonVariants } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { usePWAInstall } from '../hooks/usePWAInstall';
 
 export default function Landing() {
+  const { isInstallable, installApp } = usePWAInstall();
+  
   return (
     <motion.div 
       initial={{ opacity: 0 }} 
@@ -13,6 +16,39 @@ export default function Landing() {
       exit={{ opacity: 0 }}
       className="flex flex-col"
     >
+      {/* PWA Install Banner */}
+      <AnimatePresence>
+        {isInstallable && (
+          <motion.div
+            initial={{ opacity: 0, y: -100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -100 }}
+            transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+            className="fixed top-0 left-0 right-0 z-[90] bg-gradient-to-r from-[#064e3b] to-[#16a34a] shadow-lg"
+          >
+            <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Smartphone className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <p className="text-white font-bold text-sm">📱 Install Scanly App</p>
+                  <p className="text-white/80 text-xs">Add to your home screen for faster access</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={installApp}
+                  className="flex items-center gap-2 bg-white text-[#064e3b] px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-100 transition-colors"
+                >
+                  <Download className="h-4 w-4" />
+                  Install Now
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Hero Section */}
       <section className="px-4 py-16 md:py-24 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
         <motion.div 

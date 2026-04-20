@@ -385,20 +385,23 @@ function LoadingStep({ active, text }: { active: boolean, text: string }) {
 
 function ResultsSkeleton() {
   const [statusIndex, setStatusIndex] = useState(0);
-  const statuses = [
-    "Extracting label logic...",
-    "Decoding product ingredients...",
-    "Cross-referencing safety databases...",
-    "Generating comprehensive report...",
-    "Almost there..."
+  const aiTasks = [
+    { icon: "🔗", text: "Connecting to Global Food Databases..." },
+    { icon: "🔬", text: "Cross-referencing chemical compounds..." },
+    { icon: "📋", text: "Checking FDA safety limits..." },
+    { icon: "⚖️", text: "Analyzing user dietary risks..." },
+    { icon: "🧬", text: "Decoding ingredient interactions..." },
+    { icon: "🏥", text: "Comparing with medical guidelines..." },
+    { icon: "📊", text: "Generating nutrition insights..." },
+    { icon: "🔍", text: "Validating product authenticity..." },
   ];
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setStatusIndex((prev) => (prev + 1) % statuses.length);
+      setStatusIndex((prev) => (prev + 1) % aiTasks.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, [statuses.length]);
+  }, [aiTasks.length]);
 
   return (
     <motion.div 
@@ -407,8 +410,13 @@ function ResultsSkeleton() {
       exit={{ opacity: 0 }}
       className="fixed inset-0 bg-[#f0fdf4] z-50 overflow-y-auto"
     >
+      {/* Warning Banner */}
+      <div className="bg-red-500 text-white py-3 px-4 text-center font-bold sticky top-0 z-10 shadow-lg">
+        ⚠️ Please do not close this tab or leave the app. Analysis in progress...
+      </div>
+
       {/* Header Skeleton */}
-      <div className="bg-white border-b px-4 py-4 sticky top-0">
+      <div className="bg-white border-b px-4 py-4">
         <div className="max-w-5xl mx-auto flex items-center gap-3">
           <div className="h-6 w-6 bg-gray-200 rounded-full animate-pulse" />
           <div className="h-5 w-16 bg-gray-200 rounded animate-pulse" />
@@ -416,11 +424,61 @@ function ResultsSkeleton() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-8 pb-32 space-y-8">
+      {/* AI Processing Feed */}
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={statusIndex}
+              initial={{ opacity: 0, x: 50, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: -50, scale: 0.95 }}
+              transition={{ duration: 0.4 }}
+              className="bg-gradient-to-r from-[#064e3b] to-[#16a34a] rounded-2xl p-6 shadow-xl"
+            >
+              <div className="flex items-center gap-4">
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                  className="text-4xl"
+                >
+                  {aiTasks[statusIndex].icon}
+                </motion.div>
+                <div>
+                  <h3 className="text-white font-bold text-lg">AI Processing</h3>
+                  <p className="text-green-100 text-sm">{aiTasks[statusIndex].text}</p>
+                </div>
+              </div>
+              <div className="mt-4 flex gap-1">
+                {aiTasks.map((_, i) => (
+                  <div
+                    key={i}
+                    className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                      i === statusIndex ? 'bg-white' : 'bg-white/30'
+                    }`}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Monetag Ad Space */}
+        <div className="w-full flex justify-center py-4">
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center justify-center w-full max-w-lg">
+            <p className="text-gray-400 text-sm">Advertisement Space</p>
+          </div>
+        </div>
+
         {/* Hero Section Skeleton */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
           className="bg-white rounded-3xl shadow-sm border p-6 flex flex-col lg:flex-row gap-8"
         >
           {/* Product Image Placeholder */}
@@ -513,26 +571,6 @@ function ResultsSkeleton() {
                 <div className="h-4 w-full bg-gray-200 rounded-xl animate-pulse" />
               </div>
             ))}
-          </div>
-        </motion.div>
-
-        {/* Dynamic Status Text */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="fixed bottom-32 left-1/2 -translate-x-1/2 z-50"
-        >
-          <div className="bg-white/90 backdrop-blur-sm px-8 py-4 rounded-full shadow-lg border border-[#16a34a]/20">
-            <motion.p 
-              key={statusIndex}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="text-[#064e3b] font-semibold text-center"
-            >
-              {statuses[statusIndex]}
-            </motion.p>
           </div>
         </motion.div>
 

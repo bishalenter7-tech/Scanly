@@ -39,5 +39,5 @@ export function usePWAInstall() {
     }
   };
 
-  return { isInstallable, handleInstall };
+  return { isInstallable, installApp: handleInstall };
 }

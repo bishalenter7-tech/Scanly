@@ -14,6 +14,7 @@ import { useAuthStore } from './store/authStore';
 import { useAppStore } from './store/appStore';
 import { useScanStore } from './store/scanStore';
 import { usePWAInstall } from './hooks/usePWAInstall';
+import { PushReminderToast } from './hooks/usePushReminder';
 import { Button } from './components/ui/button';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -225,7 +226,7 @@ export default function App() {
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [showOnlineToast, setShowOnlineToast] = useState(false);
   
-  const { isInstallable, handleInstall } = usePWAInstall();
+  const { isInstallable, installApp } = usePWAInstall();
 
   useEffect(() => {
     const handleOffline = () => setIsOffline(true);
@@ -266,6 +267,7 @@ export default function App() {
         {showSplash && <SplashScreen key="splash" onComplete={handleSplashComplete} />}
         {showLang && !showSplash && <LanguageSelector key="lang" onComplete={handleLangComplete} />}
         <AuthErrorToast key="auth-error" />
+        <PushReminderToast key="push-reminder" />
         
         {isOffline && (
           <motion.div 
@@ -320,7 +322,7 @@ export default function App() {
                     animate={{ opacity: 1, scale: 1 }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={handleInstall}
+                    onClick={installApp}
                     className="flex items-center gap-2 bg-gradient-to-r from-[#16a34a] to-[#15803d] hover:from-[#15803d] hover:to-[#166534] text-white text-sm font-bold px-4 py-2 rounded-xl shadow-lg shadow-[#16a34a]/30 transition-all"
                   >
                     <Smartphone size={16} />
@@ -356,10 +358,18 @@ export default function App() {
 
               {/* Mobile Burger Menu Button */}
               <button 
-                className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg z-50"
+                className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg z-50 relative"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
-                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                {mobileMenuOpen ? <X size={24} /> : (
+                  <span className="relative inline-block">
+                    <Menu size={24} />
+                    <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    </span>
+                  </span>
+                )}
               </button>
             </div>
           </header>

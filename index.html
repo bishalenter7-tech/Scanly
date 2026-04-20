@@ -54,6 +54,17 @@
     <script>(function(s){s.dataset.zone='10899916',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
     
     <!-- [INSERT_MONETAG_GLOBAL_SCRIPT_HERE] -->
+    
+    <!-- PWA Service Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').then(reg => {
+            console.log('PWA SW registered!', reg);
+          }).catch(err => console.log('SW fail', err));
+        });
+      }
+    </script>
   </body>
 </html>
 
