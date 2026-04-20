@@ -1,5 +1,5 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
-import { getAuth, initializeAuth, GoogleAuthProvider, Auth, browserPopupRedirectResolver } from 'firebase/auth';
+import { getAuth, initializeAuth, GoogleAuthProvider, Auth, browserPopupRedirectResolver, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 
 // Type augmentation for Vite environment variables (correct TypeScript approach)
@@ -42,5 +42,11 @@ export const app: FirebaseApp = getApps().length === 0
 export const auth: Auth = initializeAuth(app, {
   popupRedirectResolver: browserPopupRedirectResolver
 });
+
+// 5. Enable persistence to keep users logged in across refreshes
+setPersistence(auth, browserLocalPersistence)
+  .then(() => console.log("Firebase Auth Persistence Enabled"))
+  .catch((error) => console.error("Auth Persistence Error:", error));
+
 export const db: Firestore = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();

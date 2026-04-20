@@ -143,8 +143,26 @@ Return pure JSON following the schema.`;
     const parsedData = JSON.parse(response.text || '{}');
     return parsedData;
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Gemini API Error:', error);
+    
+    const errorMessage = error?.message || '';
+    const errorString = JSON.stringify(error);
+    
+    // Handle 503 "high demand" errors gracefully
+    if (errorString.includes('503') || errorMessage.includes('high demand') || errorMessage.includes('rate limit')) {
+      const friendlyError = new Error('⏳ AI Servers are currently experiencing high traffic. Please tap Analyze to try again in a few seconds.');
+      friendlyError.name = 'HIGH_DEMAND';
+      throw friendlyError;
+    }
+    
+    // Handle other API errors
+    if (errorMessage.includes('API') || errorString.includes('api')) {
+      const friendlyError = new Error('AI service temporarily unavailable. Please try again.');
+      friendlyError.name = 'API_ERROR';
+      throw friendlyError;
+    }
+    
     throw error;
   }
 }

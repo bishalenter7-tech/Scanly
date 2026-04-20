@@ -124,8 +124,8 @@ function LoginScreen() {
                  Sign in to Continue
               </Button>
 <p className="text-[11px] text-[#16a34a] font-medium px-4 leading-relaxed tracking-wide">
-                 By signing in, I agree to TruthScan AI's <a href="[https://www.termsfeed.com/live/afe2dceb-42ff-4b91-98fa-ea54fd1b0184]" target="_blank" rel="noopener noreferrer" className="underline hover:text-white transition-colors">Terms & Conditions</a> and <a href="[https://www.termsfeed.com/live/8d7f12ef-5462-45f6-a825-7887e2d923c3]" target="_blank" rel="noopener noreferrer" className="underline hover:text-white transition-colors">Privacy Policy</a>.
-               </p>
+                  By signing in, I agree to TruthScan AI's <a href="https://www.termsfeed.com/live/afe2dceb-42ff-4b91-98fa-ea54fd1b0184" target="_blank" rel="noopener noreferrer" className="underline hover:text-white transition-colors">Terms & Conditions</a> and <a href="https://www.termsfeed.com/live/8d7f12ef-5462-45f6-a825-7887e2d923c3" target="_blank" rel="noopener noreferrer" className="underline hover:text-white transition-colors">Privacy Policy</a>.
+                </p>
             </div>
           </div>
        </motion.div>
@@ -197,8 +197,8 @@ function GlobalFooter() {
           </div>
           <div className="flex flex-col gap-3">
             <h4 className="font-bold text-[#064e3b] uppercase tracking-wider text-xs">Legal</h4>
-            <a href="[https://www.termsfeed.com/live/8d7f12ef-5462-45f6-a825-7887e2d923c3]" target="_blank" rel="noopener noreferrer" className="hover:text-[#16a34a] transition-colors font-medium">Privacy Policy</a>
-            <a href="[https://www.termsfeed.com/live/afe2dceb-42ff-4b91-98fa-ea54fd1b0184]" target="_blank" rel="noopener noreferrer" className="hover:text-[#16a34a] transition-colors font-medium">Terms & Conditions</a>
+            <a href="https://www.termsfeed.com/live/8d7f12ef-5462-45f6-a825-7887e2d923c3" target="_blank" rel="noopener noreferrer" className="hover:text-[#16a34a] transition-colors font-medium">Privacy Policy</a>
+            <a href="https://www.termsfeed.com/live/afe2dceb-42ff-4b91-98fa-ea54fd1b0184" target="_blank" rel="noopener noreferrer" className="hover:text-[#16a34a] transition-colors font-medium">Terms & Conditions</a>
             <Link to="/contact" className="hover:text-[#16a34a] transition-colors font-medium">Contact Us</Link>
           </div>
         </div>

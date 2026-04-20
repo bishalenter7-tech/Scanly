@@ -129,8 +129,12 @@ const handleAnalyze = async () => {
       navigate('/results');
     } catch (err: any) {
       console.error(err);
-      // We now show the EXACT error message the API returned so we can diagnose it!
-      setError(`Error: ${err.message}`);
+      // Handle specific error types with user-friendly messages
+      if (err.name === 'HIGH_DEMAND' || err.message.includes('high traffic') || err.message.includes('503')) {
+        setError('⏳ AI Servers are currently experiencing high traffic. Please tap Analyze to try again in a few seconds.');
+      } else {
+        setError(`Error: ${err.message}`);
+      }
       setIsProcessing(false);
       setAnalyzing(false);
       clearInterval(stepsInterval);

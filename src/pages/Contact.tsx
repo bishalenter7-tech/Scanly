@@ -37,7 +37,7 @@ export default function Contact() {
         
         <div className="flex justify-center gap-4">
           <a 
-            href="[https://www.instagram.com/sempai.devfo?utm_source=qr&igsh=MXUzbWlrMGVmMnF3eA==]" 
+            href="https://www.instagram.com/sempai.devfo?utm_source=qr&igsh=MXUzbWlrMGVmMnF3eA==" 
             target="_blank" 
             rel="noopener noreferrer"
             className="w-14 h-14 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 rounded-xl flex items-center justify-center text-white hover:scale-110 transition-transform shadow-lg"
@@ -46,7 +46,7 @@ export default function Contact() {
           </a>
           
           <a 
-            href="[https://www.youtube.com/@Semapi-r5c]" 
+            href="https://www.youtube.com/@Semapi-r5c" 
             target="_blank" 
             rel="noopener noreferrer"
             className="w-14 h-14 bg-red-600 rounded-xl flex items-center justify-center text-white hover:scale-110 transition-transform shadow-lg"
@@ -55,7 +55,7 @@ export default function Contact() {
           </a>
           
           <a 
-            href="[https://www.linkedin.com/in/bisal-paul-20ab513a5?utm_source=share_via&utm_content=profile&utm_medium=member_android]" 
+            href="https://www.linkedin.com/in/bisal-paul-20ab513a5?utm_source=share_via&utm_content=profile&utm_medium=member_android" 
             target="_blank" 
             rel="noopener noreferrer"
             className="w-14 h-14 bg-[#0077b5] rounded-xl flex items-center justify-center text-white hover:scale-110 transition-transform shadow-lg"

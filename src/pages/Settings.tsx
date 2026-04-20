@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useScanStore } from '../store/scanStore';
 import { useAuthStore } from '../store/authStore';
 import { Button } from '../components/ui/button';
-import { ShieldCheck, Check } from 'lucide-react';
+import { ShieldCheck, Check, Bell, BellOff } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const avatars = [
   "https://api.dicebear.com/7.x/adventurer/svg?seed=Felix", // Boy 1
@@ -22,8 +23,68 @@ export default function Settings() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
 
-  // Removed useEffect syncing here to prevent update depth exceeded error
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
+  useEffect(() => {
+    if ((window as any).OneSignalDeferred) {
+      (window as any).OneSignalDeferred.push(function(OneSignal: any) {
+        setNotificationsEnabled(OneSignal.Notifications.permission === 'granted');
+      });
+    }
+  }, []);
+
+  const handleNotificationToggle = async () => {
+    if (notificationsEnabled) {
+      setToastMessage('Notifications are already enabled! To disable them, please use your browser or device site settings.');
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 4000);
+    } else {
+      if ((window as any).OneSignalDeferred) {
+        (window as any).OneSignalDeferred.push(function(OneSignal: any) {
+          OneSignal.Slidedown.promptPush();
+        });
+        setTimeout(() => {
+          (window as any).OneSignalDeferred.push(function(OneSignal: any) {
+            setNotificationsEnabled(OneSignal.Notifications.permission === 'granted');
+          });
+        }, 2000);
+      }
+    }
+  };
+
+  // Native Browser Notification Toggle
+  const [nativeNotifStatus, setNativeNotifStatus] = useState("default");
+
+  useEffect(() => {
+    if ("Notification" in window) {
+      setNativeNotifStatus(Notification.permission);
+    }
+  }, []);
+
+  const handleNativeNotificationToggle = async () => {
+    if (!("Notification" in window)) {
+      setToastMessage("This browser does not support desktop notifications.");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 4000);
+      return;
+    }
+
+    if (Notification.permission !== "granted") {
+      const permission = await Notification.requestPermission();
+      setNativeNotifStatus(permission);
+      if (permission === "granted") {
+        setToastMessage("Native Notifications Enabled Successfully!");
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 4000);
+      }
+    } else {
+      setToastMessage("Notifications are already enabled! To disable them, you must change it in your device/browser settings.");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 4000);
+    }
+  };
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setLanguage(e.target.value as any);
@@ -211,7 +272,78 @@ export default function Settings() {
           </div>
         </section>
 
+        {/* Notifications Section */}
+        <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <h2 className="text-xl font-semibold mb-4 border-b pb-4">Notifications</h2>
+          
+          {/* OneSignal Push Notifications */}
+          <div className="flex items-center justify-between py-4">
+            <div className="flex items-center gap-4">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${notificationsEnabled ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-gray-100 text-gray-400'}`}>
+                {notificationsEnabled ? <Bell size={24} /> : <BellOff size={24} />}
+              </div>
+              <div>
+                <p className="font-bold text-gray-900">Push Notifications (Web)</p>
+                <p className="text-sm text-gray-500">
+                  Receive alerts for free scan refills and health tips
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleNotificationToggle}
+              className={`relative w-14 h-8 rounded-full transition-all duration-300 ${
+                notificationsEnabled ? 'bg-[#16a34a]' : 'bg-gray-300'
+              }`}
+            >
+              <motion.div
+                animate={{ x: notificationsEnabled ? 26 : 4 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-md"
+              />
+            </button>
+          </div>
+
+          {/* Native Browser Notifications */}
+          <div className="flex items-center justify-between py-4 border-t border-gray-100">
+            <div className="flex items-center gap-4">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${nativeNotifStatus === 'granted' ? 'bg-[#16a34a]/10 text-[#16a34a]' : 'bg-gray-100 text-gray-400'}`}>
+                {nativeNotifStatus === 'granted' ? <Bell size={24} /> : <BellOff size={24} />}
+              </div>
+              <div>
+                <p className="font-bold text-gray-900">Native Notifications</p>
+                <p className="text-sm text-gray-500">
+                  Browser-level notifications (Status: {nativeNotifStatus})
+                </p>
+              </div>
+            </div>
+            <button 
+              onClick={handleNativeNotificationToggle}
+              disabled={nativeNotifStatus === 'granted'}
+              className={`px-4 py-2 rounded-xl font-medium text-white transition-all ${
+                nativeNotifStatus === 'granted' ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#16a34a] hover:bg-[#15803d]'
+              }`}
+            >
+              {nativeNotifStatus === 'granted' ? 'Enabled' : 'Enable'}
+            </button>
+          </div>
+        </section>
+
       </div>
+      
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {showToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.9 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#064e3b] text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3"
+          >
+            <Bell size={18} />
+            <span className="text-sm font-medium">{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
