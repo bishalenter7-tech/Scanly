@@ -7,6 +7,7 @@ import Results from './pages/Results';
 import History from './pages/History';
 import About from './pages/About';
 import Settings from './pages/Settings';
+import Contact from './pages/Contact';
 import SplashScreen from './components/SplashScreen';
 import LanguageSelector from './components/LanguageSelector';
 import { useAuthStore } from './store/authStore';
@@ -120,9 +121,9 @@ function LoginScreen() {
                  </svg>
                  Sign in to Continue
               </Button>
-              <p className="text-[11px] text-[#16a34a] font-medium px-4 leading-relaxed tracking-wide">
-                By signing in, I agree to TruthScan AI's <a href="#" className="underline hover:text-white transition-colors">Terms & Conditions</a> and <a href="#" className="underline hover:text-white transition-colors">Privacy Policy</a>.
-              </p>
+<p className="text-[11px] text-[#16a34a] font-medium px-4 leading-relaxed tracking-wide">
+                 By signing in, I agree to TruthScan AI's <a href="[https://www.termsfeed.com/live/afe2dceb-42ff-4b91-98fa-ea54fd1b0184]" target="_blank" rel="noopener noreferrer" className="underline hover:text-white transition-colors">Terms & Conditions</a> and <a href="[https://www.termsfeed.com/live/8d7f12ef-5462-45f6-a825-7887e2d923c3]" target="_blank" rel="noopener noreferrer" className="underline hover:text-white transition-colors">Privacy Policy</a>.
+               </p>
             </div>
           </div>
        </motion.div>
@@ -139,6 +140,7 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PageTransition><Landing /></PageTransition>} />
         <Route path="/about" element={<PageTransition><About /></PageTransition>} />
+        <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
         <Route path="/login" element={<PageTransition><LoginScreen /></PageTransition>} />
         <Route path="/scan" element={<PageTransition><ProtectedRoute><Scan /></ProtectedRoute></PageTransition>} />
         <Route path="/results" element={<PageTransition><ProtectedRoute><Results /></ProtectedRoute></PageTransition>} />
@@ -193,8 +195,9 @@ function GlobalFooter() {
           </div>
           <div className="flex flex-col gap-3">
             <h4 className="font-bold text-[#064e3b] uppercase tracking-wider text-xs">Legal</h4>
-            <a href="#" className="hover:text-[#16a34a] transition-colors font-medium">Privacy Policy</a>
-            <a href="#" className="hover:text-[#16a34a] transition-colors font-medium">Terms & Conditions</a>
+            <a href="[https://www.termsfeed.com/live/8d7f12ef-5462-45f6-a825-7887e2d923c3]" target="_blank" rel="noopener noreferrer" className="hover:text-[#16a34a] transition-colors font-medium">Privacy Policy</a>
+            <a href="[https://www.termsfeed.com/live/afe2dceb-42ff-4b91-98fa-ea54fd1b0184]" target="_blank" rel="noopener noreferrer" className="hover:text-[#16a34a] transition-colors font-medium">Terms & Conditions</a>
+            <Link to="/contact" className="hover:text-[#16a34a] transition-colors font-medium">Contact Us</Link>
           </div>
         </div>
       </div>
@@ -218,6 +221,25 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(!hasSeenSplash);
   const [showLang, setShowLang] = useState(!language && hasSeenSplash);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [showOnlineToast, setShowOnlineToast] = useState(false);
+
+  useEffect(() => {
+    const handleOffline = () => setIsOffline(true);
+    const handleOnline = () => {
+      setIsOffline(false);
+      setShowOnlineToast(true);
+      setTimeout(() => setShowOnlineToast(false), 3000);
+    };
+
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline);
+
+    return () => {
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', handleOnline);
+    };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = initAuthListener();
@@ -241,6 +263,28 @@ export default function App() {
         {showSplash && <SplashScreen key="splash" onComplete={handleSplashComplete} />}
         {showLang && !showSplash && <LanguageSelector key="lang" onComplete={handleLangComplete} />}
         <AuthErrorToast key="auth-error" />
+        
+        {isOffline && (
+          <motion.div 
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            className="fixed top-0 left-0 right-0 z-[100] bg-red-500 text-white py-3 px-4 text-center font-medium shadow-lg"
+          >
+            ⚠️ You are offline. Please check your internet connection to continue scanning.
+          </motion.div>
+        )}
+        
+        {showOnlineToast && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] bg-green-500 text-white py-3 px-6 rounded-full font-medium shadow-lg"
+          >
+            ✅ Back online
+          </motion.div>
+        )}
       </AnimatePresence>
 
       <Router>
@@ -263,6 +307,9 @@ export default function App() {
                 </Link>
                 <Link to="/about" className="text-sm font-semibold hover:text-[#16a34a] flex items-center gap-1.5 transition-colors">
                   <Info size={18} /> About
+                </Link>
+                <Link to="/contact" className="text-sm font-semibold hover:text-[#16a34a] flex items-center gap-1.5 transition-colors">
+                  Contact
                 </Link>
                 <Link to="/settings" className="text-gray-400 hover:text-[#16a34a] transition-colors">
                   <SettingsIcon size={20} />
@@ -323,6 +370,9 @@ export default function App() {
                   </Link>
                   <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-100">
                     <Info size={20} className="text-[#16a34a]" /> About Us
+                  </Link>
+                  <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-100">
+                    Contact
                   </Link>
                   <Link to="/settings" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-100">
                     <SettingsIcon size={20} className="text-[#16a34a]" /> Settings

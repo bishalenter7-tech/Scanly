@@ -19,7 +19,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void; k
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, y: -20, filter: "blur(10px)" }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#064e3b] overflow-hidden"
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center min-h-screen w-full bg-[#f0fdf4] overflow-hidden"
         >
           {/* Background Particles/Circles */}
           <motion.div 
@@ -29,20 +29,20 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void; k
             className="absolute w-96 h-96 bg-[#16a34a] rounded-full blur-3xl"
           />
 
-          <motion.div
-            initial={{ scale: 0.5, opacity: 0, rotate: -20 }}
-            animate={{ scale: 1, opacity: 1, rotate: 0 }}
-            transition={{ duration: 0.8, type: "spring", bounce: 0.5 }}
-            className="w-32 h-32 mb-8 shadow-2xl relative z-10"
-          >
-            <img src="/src/logo.svg" alt="Scanly Logo" className="w-full h-full object-contain" />
-          </motion.div>
+          <motion.img
+            src="[INSERT_YOUR_LOGO_IMAGE_PATH_HERE]"
+            alt="Scanly Logo"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="w-40 h-40 md:w-48 md:h-48 object-contain drop-shadow-xl"
+          />
 
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className="text-white text-5xl font-extrabold tracking-tight relative z-10"
+            className="text-[#064e3b] text-5xl font-extrabold tracking-tight relative z-10"
           >
             Scanly
           </motion.h1>
@@ -51,7 +51,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void; k
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.6 }}
-            className="text-gray-300 mt-4 text-lg font-medium tracking-wide relative z-10"
+            className="text-gray-600 mt-4 text-lg font-medium tracking-wide relative z-10"
           >
             Scan. Analyze. Know the Truth.
           </motion.p>
@@ -60,7 +60,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void; k
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
             transition={{ delay: 1, duration: 0.8, ease: "easeInOut" }}
-            className="h-1 w-48 bg-white/20 rounded-full mt-12 overflow-hidden relative z-10"
+            className="h-1 w-48 bg-[#16a34a]/20 rounded-full mt-12 overflow-hidden relative z-10"
           >
             <motion.div 
               initial={{ x: "-100%" }}
