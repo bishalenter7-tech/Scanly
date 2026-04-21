@@ -1,22 +1,54 @@
 import { useState, useEffect } from 'react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 export default function InstallPrompt() {
   const { isInstallable, triggerInstall } = usePWAInstall();
   const [showPrompt, setShowPrompt] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (isInstallable) {
-      timer = setTimeout(() => {
-        setShowPrompt(true);
-      }, 60000);
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsLoggedIn(!!user);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    let notificationTimer: NodeJS.Timeout;
+    
+    if (isLoggedIn && "Notification" in window && Notification.permission === "default") {
+      notificationTimer = setTimeout(() => {
+        Notification.requestPermission().then((permission) => {
+          console.log("Notification permission result:", permission);
+        });
+      }, 30000);
     }
     
     return () => {
-      if (timer) clearTimeout(timer);
+      if (notificationTimer) clearTimeout(notificationTimer);
     };
-  }, [isInstallable]);
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    let installTimer: NodeJS.Timeout;
+    
+    if (isInstallable && isLoggedIn) {
+      installTimer = setTimeout(() => {
+        setShowPrompt(true);
+      }, 40000);
+    }
+    
+    return () => {
+      if (installTimer) clearTimeout(installTimer);
+    };
+  }, [isInstallable, isLoggedIn]);
+
+  const handleInstallClick = async () => {
+    setShowPrompt(false); 
+    await triggerInstall();
+  };
 
   if (!isInstallable || !showPrompt) return null;
 
@@ -38,7 +70,7 @@ export default function InstallPrompt() {
             Later
           </button>
           <button 
-            onClick={() => { triggerInstall(); setShowPrompt(false); }} 
+            onClick={handleInstallClick} 
             className="px-4 py-2 text-sm font-bold text-white bg-green-600 rounded-lg hover:bg-green-700 shadow-md transition-colors"
           >
             Install
