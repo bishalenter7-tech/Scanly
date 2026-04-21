@@ -29,38 +29,32 @@ export default function Contact() {
         </div>
       </div>
 
-      <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-        <h2 className="text-xl font-bold text-[#064e3b] mb-6 text-center">Follow Us</h2>
-        <p className="text-gray-600 text-center mb-6">
-          Stay connected with us on social media
-        </p>
+      <div className="w-full max-w-md mx-auto mt-8 flex flex-col gap-3">
+        <h3 className="text-lg font-semibold text-center mb-2">Connect & Legal</h3>
         
-        <div className="flex justify-center gap-4">
-          <a 
-            href="https://www.instagram.com/sempai.devfo?utm_source=qr&igsh=MXUzbWlrMGVmMnF3eA==" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="w-14 h-14 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 rounded-xl flex items-center justify-center text-white hover:scale-110 transition-transform shadow-lg"
-          >
-            <Instagram size={24} />
+        <a href="https://www.instagram.com/sempai.devfo?utm_source=qr&igsh=MXUzbWlrMGVmMnF3eA%3D%3D" target="_blank" rel="noopener noreferrer" 
+           className="flex items-center justify-center w-full py-3 px-4 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all font-medium text-pink-600">
+          Follow on Instagram
+        </a>
+        
+        <a href="https://www.linkedin.com/in/bisal-paul-20ab513a5?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener noreferrer" 
+           className="flex items-center justify-center w-full py-3 px-4 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all font-medium text-blue-600">
+          Connect on LinkedIn
+        </a>
+        
+        <a href="https://www.youtube.com/@Semapi-r5c" target="_blank" rel="noopener noreferrer" 
+           className="flex items-center justify-center w-full py-3 px-4 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all font-medium text-red-600">
+          Subscribe on YouTube
+        </a>
+
+        <div className="flex gap-3 w-full mt-2">
+          <a href="https://www.termsfeed.com/live/8d7f12ef-5462-45f6-a825-7887e2d923c3" target="_blank" rel="noopener noreferrer" 
+             className="flex-1 text-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded shadow-sm text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+            Privacy Policy
           </a>
-          
-          <a 
-            href="https://www.youtube.com/@Semapi-r5c" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="w-14 h-14 bg-red-600 rounded-xl flex items-center justify-center text-white hover:scale-110 transition-transform shadow-lg"
-          >
-            <Youtube size={24} />
-          </a>
-          
-          <a 
-            href="https://www.linkedin.com/in/bisal-paul-20ab513a5?utm_source=share_via&utm_content=profile&utm_medium=member_android" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="w-14 h-14 bg-[#0077b5] rounded-xl flex items-center justify-center text-white hover:scale-110 transition-transform shadow-lg"
-          >
-            <Linkedin size={24} />
+          <a href="https://www.termsfeed.com/live/afe2dceb-42ff-4b91-98fa-ea54fd1b0184" target="_blank" rel="noopener noreferrer" 
+             className="flex-1 text-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded shadow-sm text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+            Terms & Conditions
           </a>
         </div>
       </div>

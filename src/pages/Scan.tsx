@@ -127,14 +127,26 @@ const handleAnalyze = async () => {
       
       clearInterval(stepsInterval);
       navigate('/results');
-    } catch (err: any) {
-      console.error(err);
-      // Handle specific error types with user-friendly messages
-      if (err.name === 'HIGH_DEMAND' || err.message.includes('high traffic') || err.message.includes('503')) {
-        setError('⏳ AI Servers are currently experiencing high traffic. Please tap Analyze to try again in a few seconds.');
-      } else {
-        setError(`Error: ${err.message}`);
+    } catch (error: any) {
+      console.error("Scan Error:", error);
+      let friendlyMessage = "An unexpected error occurred while analyzing. Please try again.";
+      
+      try {
+        const errorString = error.message || String(error);
+        if (errorString.includes("{")) {
+          const parsedError = JSON.parse(errorString.substring(errorString.indexOf("{")));
+          if (parsedError?.error?.code === 503) {
+            friendlyMessage = "Scanly AI servers are currently experiencing high demand. Please wait a few seconds and try analyzing again.";
+          } else if (parsedError?.error?.message) {
+            friendlyMessage = parsedError.error.message;
+          }
+        }
+      } catch (e) {
+        friendlyMessage = error.message || "Failed to analyze. Please hold the camera steady.";
       }
+
+      setError(friendlyMessage);
+    } finally {
       setIsProcessing(false);
       setAnalyzing(false);
       clearInterval(stepsInterval);

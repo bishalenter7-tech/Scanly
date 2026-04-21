@@ -10,6 +10,7 @@ import Settings from './pages/Settings';
 import Contact from './pages/Contact';
 import SplashScreen from './components/SplashScreen';
 import LanguageSelector from './components/LanguageSelector';
+import InstallPrompt from './components/InstallPrompt';
 import { useAuthStore } from './store/authStore';
 import { useAppStore } from './store/appStore';
 import { useScanStore } from './store/scanStore';
@@ -123,9 +124,25 @@ function LoginScreen() {
                  </svg>
                  Sign in to Continue
               </Button>
-<p className="text-[11px] text-[#16a34a] font-medium px-4 leading-relaxed tracking-wide">
-                  By signing in, I agree to TruthScan AI's <a href="https://www.termsfeed.com/live/afe2dceb-42ff-4b91-98fa-ea54fd1b0184" target="_blank" rel="noopener noreferrer" className="underline hover:text-white transition-colors">Terms & Conditions</a> and <a href="https://www.termsfeed.com/live/8d7f12ef-5462-45f6-a825-7887e2d923c3" target="_blank" rel="noopener noreferrer" className="underline hover:text-white transition-colors">Privacy Policy</a>.
-                </p>
+<div className="flex items-center justify-center gap-4 mt-6 text-sm text-gray-500 dark:text-gray-400">
+                  <a 
+                    href="https://www.termsfeed.com/live/8d7f12ef-5462-45f6-a825-7887e2d923c3" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="hover:text-green-600 transition-colors"
+                  >
+                    Privacy Policy
+                  </a>
+                  <span>|</span>
+                  <a 
+                    href="https://www.termsfeed.com/live/afe2dceb-42ff-4b91-98fa-ea54fd1b0184" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="hover:text-green-600 transition-colors"
+                  >
+                    Terms & Conditions
+                  </a>
+                </div>
             </div>
           </div>
        </motion.div>
@@ -202,6 +219,25 @@ function GlobalFooter() {
             <Link to="/contact" className="hover:text-[#16a34a] transition-colors font-medium">Contact Us</Link>
           </div>
         </div>
+      </div>
+      <div className="flex items-center justify-center gap-4 mt-4 text-sm text-gray-500 dark:text-gray-400">
+         <a 
+           href="https://www.termsfeed.com/live/8d7f12ef-5462-45f6-a825-7887e2d923c3" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           className="hover:text-[#16a34a] transition-colors"
+         >
+           Privacy Policy
+         </a>
+         <span>|</span>
+         <a 
+           href="https://www.termsfeed.com/live/afe2dceb-42ff-4b91-98fa-ea54fd1b0184" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           className="hover:text-[#16a34a] transition-colors"
+         >
+           Terms & Conditions
+         </a>
       </div>
       <div className="border-t border-gray-100 py-6 text-center text-xs text-gray-400">
          <p>© {new Date().getFullYear()} TruthScan AI. All rights reserved.</p>
@@ -439,6 +475,7 @@ export default function App() {
           </main>
           
           <GlobalFooter />
+          <InstallPrompt />
         </div>
       </Router>
     </>
