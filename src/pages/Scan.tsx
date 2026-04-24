@@ -483,13 +483,6 @@ function ResultsSkeleton() {
           </AnimatePresence>
         </motion.div>
 
-        {/* Monetag Ad Space */}
-        <div className="w-full flex justify-center py-4">
-          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center justify-center w-full max-w-lg">
-            <p className="text-gray-400 text-sm">Advertisement Space</p>
-          </div>
-        </div>
-
         {/* Hero Section Skeleton */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

@@ -33,6 +33,16 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       set({ error: null });
 
+      // Detect Instagram/Facebook in-app browsers
+      const ua = navigator.userAgent || navigator.vendor;
+      const isInstagram = (ua.indexOf('Instagram') > -1);
+      const isFacebook = (ua.indexOf('FBAN') > -1) || (ua.indexOf('FBAV') > -1);
+
+      if (isInstagram || isFacebook) {
+        set({ error: "Google Sign-In is blocked inside Instagram/Facebook. Please click the 3 dots (...) at the top right and select 'Open in External Browser' (Chrome/Safari) to log in." });
+        return;
+      }
+
       const browserWarning = getInAppBrowserWarning();
       if (browserWarning) {
         set({ error: browserWarning });

@@ -1,54 +1,23 @@
 import { useState, useEffect } from 'react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 export default function InstallPrompt() {
   const { isInstallable, triggerInstall } = usePWAInstall();
   const [showPrompt, setShowPrompt] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsLoggedIn(!!user);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    let notificationTimer: NodeJS.Timeout;
-    
-    if (isLoggedIn && "Notification" in window && Notification.permission === "default") {
-      notificationTimer = setTimeout(() => {
-        Notification.requestPermission().then((permission) => {
-          console.log("Notification permission result:", permission);
-        });
-      }, 30000);
-    }
-    
-    return () => {
-      if (notificationTimer) clearTimeout(notificationTimer);
-    };
-  }, [isLoggedIn]);
-
-  useEffect(() => {
-    let installTimer: NodeJS.Timeout;
-    
-    if (isInstallable && isLoggedIn) {
-      installTimer = setTimeout(() => {
+    let timer: NodeJS.Timeout;
+    // If the device allows installation, start the 60-second countdown
+    if (isInstallable) {
+      timer = setTimeout(() => {
         setShowPrompt(true);
-      }, 40000);
+      }, 60000); // 60 seconds delay
     }
     
     return () => {
-      if (installTimer) clearTimeout(installTimer);
+      if (timer) clearTimeout(timer);
     };
-  }, [isInstallable, isLoggedIn]);
-
-  const handleInstallClick = async () => {
-    setShowPrompt(false); 
-    await triggerInstall();
-  };
+  }, [isInstallable]);
 
   if (!isInstallable || !showPrompt) return null;
 
@@ -70,7 +39,7 @@ export default function InstallPrompt() {
             Later
           </button>
           <button 
-            onClick={handleInstallClick} 
+            onClick={() => { triggerInstall(); setShowPrompt(false); }} 
             className="px-4 py-2 text-sm font-bold text-white bg-green-600 rounded-lg hover:bg-green-700 shadow-md transition-colors"
           >
             Install

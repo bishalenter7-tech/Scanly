@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
-import { Camera, Search, Settings as SettingsIcon, History as HistoryIcon, Info, LogOut, Menu, X, ShieldCheck, AlertCircle, Sparkles, Download, Smartphone } from 'lucide-react';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Camera, Search, Settings as SettingsIcon, History as HistoryIcon, Info, LogOut, Menu, X, ShieldCheck, AlertCircle, Sparkles, Download, Smartphone, ArrowLeft } from 'lucide-react';
 import Landing from './pages/Landing';
 import Scan from './pages/Scan';
 import Results from './pages/Results';
@@ -11,6 +11,8 @@ import Contact from './pages/Contact';
 import SplashScreen from './components/SplashScreen';
 import LanguageSelector from './components/LanguageSelector';
 import InstallPrompt from './components/InstallPrompt';
+import InAppBrowserPrompt from './components/InAppBrowserPrompt';
+import ErrorBoundary from './components/ErrorBoundary';
 import { useAuthStore } from './store/authStore';
 import { useAppStore } from './store/appStore';
 import { useScanStore } from './store/scanStore';
@@ -262,7 +264,7 @@ export default function App() {
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [showOnlineToast, setShowOnlineToast] = useState(false);
   
-  const { isInstallable, installApp } = usePWAInstall();
+   const { isInstallable, triggerInstall } = usePWAInstall();
 
   useEffect(() => {
     const handleOffline = () => setIsOffline(true);
@@ -297,13 +299,15 @@ export default function App() {
     setShowLang(false);
   };
 
-  return (
-    <>
-      <AnimatePresence>
-        {showSplash && <SplashScreen key="splash" onComplete={handleSplashComplete} />}
-        {showLang && !showSplash && <LanguageSelector key="lang" onComplete={handleLangComplete} />}
-        <AuthErrorToast key="auth-error" />
-        <PushReminderToast key="push-reminder" />
+   return (
+     <>
+       <InAppBrowserPrompt />
+       <InstallPrompt />
+       <AnimatePresence>
+         {showSplash && <SplashScreen key="splash" onComplete={handleSplashComplete} />}
+         {showLang && !showSplash && <LanguageSelector key="lang" onComplete={handleLangComplete} />}
+         <AuthErrorToast key="auth-error" />
+         <PushReminderToast key="push-reminder" />
         
         {isOffline && (
           <motion.div 
@@ -330,9 +334,25 @@ export default function App() {
 
       <Router>
         <div className="min-h-screen bg-[#022c22] flex flex-col text-[#022c22] font-sans">
-          <header className="bg-white border-b sticky top-0 z-40 shadow-sm">
-            <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-2 z-50">
+           <header className="bg-white border-b sticky top-0 z-40 shadow-sm">
+             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+               {
+                 (() => {
+                   const location = useLocation();
+                   const navigate = useNavigate();
+                   const isHomePage = location.pathname === '/' || location.pathname === '/login';
+                   return !isHomePage && (
+                     <button 
+                       onClick={() => navigate(-1)} 
+                       className="mr-3 p-2 text-gray-600 hover:bg-gray-100 hover:text-[#16a34a] rounded-full transition-colors flex items-center gap-1 z-50"
+                     >
+                       <ArrowLeft size={20} />
+                       <span className="hidden sm:inline text-sm font-medium">Back</span>
+                     </button>
+                   );
+                 })()
+               }
+               <Link to="/" className="flex items-center gap-2 z-50">
                 <div className="w-8 h-8 rounded-lg overflow-hidden shadow-sm">
                   <img src="/Scanly.png" alt="Scanly Logo" className="w-full h-full object-cover" />
                 </div>
@@ -352,19 +372,19 @@ export default function App() {
                 <Link to="/contact" className="text-sm font-semibold hover:text-[#16a34a] flex items-center gap-1.5 transition-colors">
                   Contact
                 </Link>
-                {isInstallable && (
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={installApp}
-                    className="flex items-center gap-2 bg-gradient-to-r from-[#16a34a] to-[#15803d] hover:from-[#15803d] hover:to-[#166534] text-white text-sm font-bold px-4 py-2 rounded-xl shadow-lg shadow-[#16a34a]/30 transition-all"
-                  >
-                    <Smartphone size={16} />
-                    Install App
-                  </motion.button>
-                )}
+                 {isInstallable && (
+                   <motion.button
+                     initial={{ opacity: 0, scale: 0.9 }}
+                     animate={{ opacity: 1, scale: 1 }}
+                     whileHover={{ scale: 1.05 }}
+                     whileTap={{ scale: 0.95 }}
+                     onClick={triggerInstall}
+                     className="flex items-center gap-2 bg-gradient-to-r from-[#16a34a] to-[#15803d] hover:from-[#15803d] hover:to-[#166534] text-white text-sm font-bold px-4 py-2 rounded-xl shadow-lg shadow-[#16a34a]/30 transition-all"
+                   >
+                     <Smartphone size={16} />
+                     Install App
+                   </motion.button>
+                 )}
                 <Link to="/settings" className="text-gray-400 hover:text-[#16a34a] transition-colors">
                   <SettingsIcon size={20} />
                 </Link>
@@ -470,14 +490,15 @@ export default function App() {
             )}
           </AnimatePresence>
 
-          <main className="flex-1 flex flex-col pt-0 bg-[#022c22] relative overflow-hidden">
-            <AnimatedRoutes />
-          </main>
-          
-          <GlobalFooter />
-          <InstallPrompt />
-        </div>
-      </Router>
+             <div className="flex-1 flex flex-col relative z-10 w-full max-w-[100vw] overflow-x-hidden pt-16">
+               <ErrorBoundary>
+                 <AnimatedRoutes />
+               </ErrorBoundary>
+             </div>
+            
+           <GlobalFooter />
+         </div>
+       </Router>
     </>
   );
 }

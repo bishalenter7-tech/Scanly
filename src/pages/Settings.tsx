@@ -4,6 +4,7 @@ import { useAuthStore } from '../store/authStore';
 import { Button } from '../components/ui/button';
 import { ShieldCheck, Check, Bell, BellOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { BackButton } from '../components/BackButton';
 
 const avatars = [
   "https://api.dicebear.com/7.x/adventurer/svg?seed=Felix", // Boy 1
@@ -106,7 +107,8 @@ export default function Settings() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto w-full px-4 py-12">
+    <div className="flex-1 max-w-4xl mx-auto w-full px-4 py-8 relative pb-24">
+      <BackButton />
       <h1 className="text-3xl font-bold text-[#064e3b] mb-8">Settings</h1>
       
       <div className="space-y-8" key={user?.uid || 'no-user'}>

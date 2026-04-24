@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 
 export default function Landing() {
-  const { isInstallable, installApp } = usePWAInstall();
+  const { isInstallable, triggerInstall } = usePWAInstall();
   
   return (
     <motion.div 
@@ -37,10 +37,10 @@ export default function Landing() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button
-                  onClick={installApp}
-                  className="flex items-center gap-2 bg-white text-[#064e3b] px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-100 transition-colors"
-                >
+                 <button
+                   onClick={triggerInstall}
+                   className="flex items-center gap-2 bg-white text-[#064e3b] px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-100 transition-colors"
+                 >
                   <Download className="h-4 w-4" />
                   Install Now
                 </button>

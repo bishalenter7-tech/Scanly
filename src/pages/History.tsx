@@ -6,6 +6,7 @@ import { Badge } from '../components/ui/badge';
 import { ScanSearch, Trash2, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { BackButton } from '../components/BackButton';
 
 export default function History() {
   const history = useScanStore((state) => state.history);
@@ -34,6 +35,7 @@ export default function History() {
         transition={{ duration: 0.4 }}
         className="flex-1 flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto space-y-6"
       >
+        <BackButton />
         <div className="w-24 h-24 bg-white shadow-xl shadow-[#16a34a]/10 rounded-full flex items-center justify-center mb-2 border border-[#16a34a]/10">
            <ScanSearch className="h-10 w-10 text-[#16a34a]/60" />
         </div>
@@ -52,6 +54,7 @@ export default function History() {
       animate={{ opacity: 1, y: 0 }}
       className="max-w-4xl mx-auto w-full px-4 py-8"
     >
+      <BackButton />
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-[#064e3b]">Scan History</h1>

@@ -29,14 +29,14 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void; k
             className="absolute w-96 h-96 bg-[#16a34a] rounded-full blur-3xl"
           />
 
-          <motion.img
-            src="[INSERT_YOUR_LOGO_IMAGE_PATH_HERE]"
-            alt="Scanly Logo"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="w-40 h-40 md:w-48 md:h-48 object-contain drop-shadow-xl"
-          />
+           <motion.img
+             src="/Scanly.png"
+             alt="Scanly Logo"
+             initial={{ opacity: 0, scale: 0.8 }}
+             animate={{ opacity: 1, scale: 1 }}
+             transition={{ duration: 0.8, ease: "easeOut" }}
+             className="w-40 h-40 md:w-48 md:h-48 object-contain drop-shadow-xl"
+           />
 
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}

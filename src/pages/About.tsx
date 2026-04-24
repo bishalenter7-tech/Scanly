@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { BackButton } from '../components/BackButton';
 
 export default function About() {
   return (
@@ -6,8 +7,9 @@ export default function About() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="max-w-3xl mx-auto w-full px-4 py-12 prose prose-indigo"
+      className="flex-1 max-w-4xl mx-auto w-full px-4 py-8 relative pb-24"
     >
+      <BackButton />
       <h1 className="text-3xl font-bold text-[#064e3b] mb-6">About TruthScan AI</h1>
       <p className="text-lg text-gray-600 mb-8">
         TruthScan AI was built to empower consumers. In a world where food labels are intentionally complex and marketing claims border on deceptive, we believe everyone has the right to know exactly what they are putting into their bodies.
