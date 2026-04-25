@@ -55,7 +55,7 @@ function AuthErrorToast() {
 function PageTransition({ children }: { children: React.ReactNode }) {
   return (
     <motion.div
-      className="flex-1 flex flex-col bg-[#f0fdf4] w-full h-full origin-center"
+      className="flex-1 flex flex-col bg-[#f0fdf4] w-full origin-center"
       initial={{ clipPath: 'circle(0% at 50% 50%)', filter: 'brightness(0.5)' }}
       animate={{ clipPath: 'circle(150% at 50% 50%)', filter: 'brightness(1)' }}
       exit={{ clipPath: 'circle(0% at 50% 50%)', filter: 'brightness(0)' }}
@@ -77,7 +77,7 @@ function LoginScreen() {
   }
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-6 bg-[#f0fdf4] relative overflow-hidden h-full w-full">
+    <div className="flex-1 flex flex-col items-center justify-center p-6 bg-[#f0fdf4] relative overflow-hidden w-full min-h-[calc(100dvh-64px)]">
        <div className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-[#16a34a] blur-[120px] rounded-full opacity-20 pointer-events-none" />
        <div className="absolute bottom-[-10%] left-[-5%] w-96 h-96 bg-[#047857] blur-[100px] rounded-full opacity-20 pointer-events-none" />
        
@@ -495,7 +495,7 @@ export default function App() {
             )}
           </AnimatePresence>
 
-          <main className="flex-1 flex flex-col relative z-10 w-full max-w-[100vw] overflow-x-hidden pt-0 bg-[#022c22]">
+          <main className="flex-1 flex flex-col relative z-10 w-full max-w-[100vw] overflow-x-hidden bg-[#022c22]">
             <ErrorBoundary>
               <AnimatedRoutes />
             </ErrorBoundary>
