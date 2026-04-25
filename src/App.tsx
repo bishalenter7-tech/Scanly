@@ -55,7 +55,7 @@ function AuthErrorToast() {
 function PageTransition({ children }: { children: React.ReactNode }) {
   return (
     <motion.div
-      className="flex-1 flex flex-col bg-[#f0fdf4] w-full min-h-screen origin-center"
+      className="flex-1 flex flex-col bg-[#f0fdf4] w-full h-full origin-center"
       initial={{ clipPath: 'circle(0% at 50% 50%)', filter: 'brightness(0.5)' }}
       animate={{ clipPath: 'circle(150% at 50% 50%)', filter: 'brightness(1)' }}
       exit={{ clipPath: 'circle(0% at 50% 50%)', filter: 'brightness(0)' }}
@@ -77,7 +77,7 @@ function LoginScreen() {
   }
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-6 bg-[#f0fdf4] relative overflow-hidden min-h-[calc(100vh-64px)] w-full">
+    <div className="flex-1 flex flex-col items-center justify-center p-6 bg-[#f0fdf4] relative overflow-hidden h-full w-full">
        <div className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-[#16a34a] blur-[120px] rounded-full opacity-20 pointer-events-none" />
        <div className="absolute bottom-[-10%] left-[-5%] w-96 h-96 bg-[#047857] blur-[100px] rounded-full opacity-20 pointer-events-none" />
        
@@ -332,8 +332,8 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <Router>
-        <div className="min-h-screen bg-[#022c22] flex flex-col text-[#022c22] font-sans">
+       <Router>
+         <div className="min-h-[100dvh] bg-[#022c22] flex flex-col text-[#022c22] font-sans">
            <header className="bg-white border-b sticky top-0 z-40 shadow-sm">
              <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
                {
@@ -442,7 +442,7 @@ export default function App() {
               >
                 <div className="flex flex-col gap-6 text-lg font-medium">
                   <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-100">
-                     <Search size={20} className="text-[#16a34a]" /> Home
+                    <Search size={20} className="text-[#16a34a]" /> Home
                   </Link>
                   <Link to="/scan" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-100">
                     <Camera size={20} className="text-[#16a34a]" /> Scan Product
@@ -466,12 +466,12 @@ export default function App() {
                         <div className="flex items-center gap-3">
                            <img src={user.photoURL || ''} alt="Avatar" className="w-10 h-10 rounded-full border-2 border-white shadow-sm" />
                            <div className="flex flex-col">
-                             <span className="text-sm font-bold text-[#064e3b]">{user.displayName}</span>
-                             <span className="text-xs text-[#15803d] truncate w-32">{user.email}</span>
+                              <span className="text-sm font-bold text-[#064e3b]">{user.displayName}</span>
+                              <span className="text-xs text-[#15803d] truncate w-32">{user.email}</span>
                            </div>
                         </div>
                         <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="p-2 bg-white rounded-full text-red-500 shadow-sm border border-red-100">
-                          <LogOut size={18} />
+                           <LogOut size={18} />
                         </button>
                       </div>
                     ) : (
@@ -480,7 +480,7 @@ export default function App() {
                            Sign in with Google
                         </Button>
                         <p className="text-xs text-gray-500 font-medium text-center px-2">
-                          We recommend <strong>Google Login</strong> for maximum account security, safety, and seamless synchronization.
+                           We recommend <strong>Google Login</strong> for maximum account security, safety, and seamless synchronization.
                         </p>
                       </div>
                     )}
@@ -490,15 +490,15 @@ export default function App() {
             )}
           </AnimatePresence>
 
-             <div className="flex-1 flex flex-col relative z-10 w-full max-w-[100vw] overflow-x-hidden pt-16">
-               <ErrorBoundary>
-                 <AnimatedRoutes />
-               </ErrorBoundary>
-             </div>
-            
-           <GlobalFooter />
-         </div>
-       </Router>
+          <main className="flex-1 flex flex-col relative z-10 w-full max-w-[100vw] overflow-x-hidden pt-0 bg-[#022c22]">
+            <ErrorBoundary>
+              <AnimatedRoutes />
+            </ErrorBoundary>
+          </main>
+             
+          <GlobalFooter />
+        </div>
+      </Router>
     </>
   );
 }
