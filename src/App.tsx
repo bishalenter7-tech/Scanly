@@ -248,6 +248,24 @@ function GlobalFooter() {
   );
 }
 
+function HeaderBackButton() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isHomePage = location.pathname === '/' || location.pathname === '/login';
+  
+  if (isHomePage) return null;
+  
+  return (
+    <button 
+      onClick={() => navigate(-1)} 
+      className="mr-3 p-2 text-gray-600 hover:bg-gray-100 hover:text-[#16a34a] rounded-full transition-colors flex items-center gap-1 z-50"
+    >
+      <ArrowLeft size={20} />
+      <span className="hidden sm:inline text-sm font-medium">Back</span>
+    </button>
+  );
+}
+
 export default function App() {
   const user = useAuthStore((state) => state.user);
   const loginWithGoogle = useAuthStore((state) => state.loginWithGoogle);
@@ -334,25 +352,12 @@ export default function App() {
 
        <Router>
          <div className="min-h-[100dvh] bg-[#022c22] flex flex-col text-[#022c22] font-sans">
-           <header className="bg-white border-b sticky top-0 z-40 shadow-sm">
-             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-               {
-                 (() => {
-                   const location = useLocation();
-                   const navigate = useNavigate();
-                   const isHomePage = location.pathname === '/' || location.pathname === '/login';
-                   return !isHomePage && (
-                     <button 
-                       onClick={() => navigate(-1)} 
-                       className="mr-3 p-2 text-gray-600 hover:bg-gray-100 hover:text-[#16a34a] rounded-full transition-colors flex items-center gap-1 z-50"
-                     >
-                       <ArrowLeft size={20} />
-                       <span className="hidden sm:inline text-sm font-medium">Back</span>
-                     </button>
-                   );
-                 })()
-               }
-               <Link to="/" className="flex items-center gap-2 z-50">
+            <header className="bg-white border-b sticky top-0 z-40 shadow-sm">
+              <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+                {/* Fixed: Moved hooks to a proper React component with Router context */}
+                <HeaderBackButton />
+                
+                <Link to="/" className="flex items-center gap-2 z-50">
                 <div className="w-8 h-8 rounded-lg overflow-hidden shadow-sm">
                   <img src="/Scanly.png" alt="Scanly Logo" className="w-full h-full object-cover" />
                 </div>
